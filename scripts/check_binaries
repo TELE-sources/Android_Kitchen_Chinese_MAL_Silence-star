@@ -28,7 +28,7 @@ do
     echo
     echo "此工具由DsiXDA开发，由MAL神族 沉默之星 汉化翻译"
     echo
-    echo "技术支持来自XDA和神族论坛，神族论坛地址（http://www.malshenzu.com/）"
+    echo "技术支持来自XDA和神族论坛，神族论坛地址（http://bbs.malshenzu.com/）"
     echo
     echo -n "感谢使用，请稍等 "
     for (( count = 0 ; $count <= $i ; count++ ))
