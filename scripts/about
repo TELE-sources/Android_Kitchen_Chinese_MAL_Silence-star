@@ -27,8 +27,8 @@ echo "  帮助及讨论: http://bbs.malshenzu.com/"
 echo "  在微博上关注我: http://weibo.com/u/2009201565"
 echo
 echo
-echo "  本人能力有限，在线更新后将失去汉化"
-echo "  之后版本的汉化包将于神族论坛发布"
+echo "  本版本去掉了官方的更新"
+echo "  改为我自己的更新，更新后依旧为汉化版本"
 echo
 echo "------------------------------------------------------------"
 echo
@@ -99,13 +99,13 @@ else
       exit 0
     fi
 
-    new_file=dsixda_Android_Kitchen_$latest_ver.zip
+    new_file=dsixda_Android_Kitchen_by_沉默之星_$latest_ver.zip
 
     echo
     echo "正在下载 $new_file ..."
     echo
 
-    url=https://github.com/dsixda/Android-Kitchen/zipball/$latest_ver
+    url=https://github.com/silence-star/Android_Kitchen_Chinese_MAL_Silence-star/zipball/$latest_ver
 
     wget --no-check-certificate $url -O $new_file
     echo

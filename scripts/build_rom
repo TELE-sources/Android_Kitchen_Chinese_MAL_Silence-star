@@ -14,7 +14,7 @@ echo
 
 if [ -d WORKING_* ]
 then
-  echo 已找到工作文件夹
+  echo 发现工作文件夹
 else
   echo 未找到工作文件夹!
   exit 0
@@ -26,7 +26,7 @@ if [ -e META-INF/com/google/android/update-script ] && [ -e META-INF/com/google/
 then
 
   echo
-  echo "  错误: update-script 和 updater-script 同时存在工作文件夹中."
+  echo "  错误: update-script 和 updater-script 脚本同时存在工作文件夹中."
   echo "        请在打包 ROM 前，确保工作文件夹中只有一个刷机脚本文件!" 
   echo
 
@@ -121,31 +121,38 @@ echo
 echo "  1 = 交互模式-对于大多数用户推荐"
 echo "      (生成过程中进行指导操作)"
 echo
-echo "  2 = 直通模式-高级用户"
+echo "  2 = 懒人模式 - 一切由厨房工具自动完成"
+echo "      (Zipalign优化, Edify脚本, 签名 ROM, 自动命名 ZIP)"
+echo
+echo "  3 = 直通模式-高级用户"
 echo "      (Zipalign,Edify,不要签名ROM自动命名ZIP文件)"
 echo 
-echo "  3 = 极端模式-用于高级用户"
+echo "  4 = 极端模式-用于高级用户"
 echo "      (没有 zipalign,无脚本转换,不要签名ROM,自动命名ZIP文件)"
 echo 
-echo "  4 = 取消 - 现在不生成ROM"
+echo "  5 = 取消 - 现在不生成ROM"
 echo
 echo "=========================================================================="
 echo
-echo -n "Number (default: 1): "
+echo -n "输入数字 (默认: 1): "
 
 read build_mode
 
 # Default is 1, so remember to account for Enter key
-if [ "$build_mode" == "4" ]
+if [ "$build_mode" == "5" ]
 then
   echo "取消"
   exit 0
-elif [ "$build_mode" == "3" ]
+elif [ "$build_mode" == "4" ]
 then
   extreme=yes  
-elif [ "$build_mode" == "2" ]
+elif [ "$build_mode" == "3" ]
 then
   express=yes 
+elif [ "$build_mode" == "2" ]
+then
+  lazy=yes
+  express=yes
 else
   interactive=yes
 fi
@@ -184,10 +191,10 @@ echo
 
 if [ -e update.zip ]
 then
-  echo ROM 文件包 update.zip 创建成功
+  echo update.zip 创建成功 
   echo
 else
-  echo "错误: update.zip 创建失败！"
+  echo "错误: update.zip 创建失败!"
   cd ..
   exit 0
 fi
@@ -216,7 +223,7 @@ then
     echo
     echo " 确保与新版的recovery的兼容性，在你的 ROM ZIP文件中"
     echo " 可以使用updater-script (Edify) 脚本而不是"
-    echo " update-script (Amend)脚本在."
+    echo " update-script (Amend)脚本。"
     echo 
     echo " 你的工作文件夹将保持不变，并继续使用原始update-script脚本. "
     echo 
@@ -239,16 +246,16 @@ then
       then
         proceed_change=y
       else
-        echo " 保留更改并继续 (y/n)?"
+        echo "P保留更改并继续 (y/n)?"
         echo 
         echo "  y = 继续进行; updater-script 和 update-binary 文件将被移到 ZIP 文件"
         echo "      ZIP 文件中update-script脚本将删除"
         echo "      但将保留在工作文件夹."
         echo "  n = 取消; updater-script and update-binary 将被删除"
-        echo "      不使用."
+        echo "      并不使用."
         echo
          
-        echo -n " 请输入选择项 （默认: y）: "
+        echo -n "请输入选择项 （默认: y）: "
         read proceed_change 
       fi
 
@@ -263,12 +270,12 @@ then
           zip update.zip META-INF/com/google/android/updater-script META-INF/com/google/android/update-binary
           zip -d update.zip META-INF/com/google/android/update-script
         else
-          echo "未发现 updater-script 脚本，保留 update-script 脚本"
+          echo "未发现 updater-script 脚本, 保留 update-script 脚本"
         fi
 
       else
         echo
-        echo "取消"
+        echo "Cancelling"
       fi
 
       rm -f META-INF/com/google/android/updater-script
@@ -276,8 +283,8 @@ then
 
       if [ "$auto_convert" == "1" ] && [ "$proceed_change" == "n" ]
       then
-        echo "你的ROM文件不适用此update-script脚本"
-        echo "删除update.zip ..."
+        echo "你的ROM文件不适用此update-script脚本。"
+        echo "移除 update.zip ..."
         rm -f update.zip
         echo
         cd ..
@@ -285,14 +292,14 @@ then
       fi
 
     else
-      echo "保留update-script脚本"
+      echo "保留 update-script"
       cd WORKING_*
     fi
 
   else
     echo
     echo
-    echo "保留update-script脚本"
+    echo "保留 update-script"
   fi
 
   echo
@@ -332,18 +339,25 @@ cd WORKING_*
 sign_update=no
 sign_str=unsigned
 
+if [ "$lazy" == "yes" ]
+then
+  do_sign=y
+else
+  do_sign=n
+fi
+
 if [ "$interactive" == "yes" ]
 then
   echo
   echo "建议你签名你的ROM文件。"
   echo -n "是否签名(y/n)? (默认: y): "
   read do_sign
+fi
 
-  if [ "$do_sign" != "n" ]
-  then
-    sign_update=yes
-    sign_str=signed
-  fi
+if [ "$do_sign" != "n" ]
+then
+  sign_update=yes
+  sign_str=signed
 fi
 
 final_file=$device\_$sign_str\_$date_str.zip
@@ -451,8 +465,8 @@ else
 
     elif [ `sw_vers | grep -o Mac` ]
     then
-      echo " 你可能需要为 Mac OS X 安装 SoyLatte"
-      echo " (以替换标准的 Java JDK)"
+      echo "你可能需要为 Mac OS X 安装 SoyLatte"
+      echo "(以替换标准的 Java JDK)"
     fi
   fi
 fi

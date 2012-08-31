@@ -20,7 +20,7 @@ do
   echo "Boot image 工具"
   echo "----------------"
   echo
-  echo "输入选择:"
+  echo "输入选项:"
   echo 
 
   if [ -d WORKING_* ]
@@ -87,7 +87,7 @@ do
   echo "  重新包装你还需要一个工作文件夹，"
   echo "  使厨房可以使用原来的boot.img的文件头信息。" 
   echo
-  echo -n "? "
+  echo -n "输入选项： "
 
   read enterLetter
 
