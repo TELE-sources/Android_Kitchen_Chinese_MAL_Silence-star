@@ -20,6 +20,16 @@ then
 else
   echo "编译 simg2img ..."
 
+  if [ `uname | grep CYGWIN` ]
+  then
+    if [ `grep -c __CYGWIN__ tools/samsung_files/simg2img_files/simg2img.c` == 0 ]
+    then
+      echo "(但首先, 为 simg2img.c 添加 Cygwin 补丁)"
+      sed -i -e '0,/#include/s//\/* dsixda patch *\/\n#if defined(__CYGWIN__)\n#  define lseek64 lseek\n#  define ftruncate64 ftruncate\n#endif\n\n#include/g' \
+        tools/samsung_files/simg2img_files/simg2img.c
+    fi
+  fi
+
   cd tools/samsung_files/simg2img_files
   gcc -c sparse_crc32.c
   gcc sparse_crc32.o simg2img.c -w -o simg2img

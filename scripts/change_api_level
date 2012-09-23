@@ -25,15 +25,19 @@ echo "确保已经为你的 ROM 设置正确 API 级别!"
 echo
 echo "每个 API 级别对应于至少一个 Android OS 版本."
 echo
-echo "e.g.  Android 4.0.3     = API Level 15"
-echo "      Android 4.0-4.0.2 = API Level 14"
-echo "      Android 3.2       = API Level 13"
-echo "      Android 3.1.x     = API Level 12"
-echo "      Android 3.0.x     = API Level 11"
-echo "      Android 2.3.3+    = API Level 10"
-echo "      Android 2.3-2.3.2 = API Level 9"
-echo "      Android 2.2.x     = API Level 8"
+echo "例如："
+echo "      Android 4.1-4.1.1   = API Level 16"
+echo "      Android 4.0.3-4.0.4 = API Level 15"
+echo "      Android 4.0-4.0.2   = API Level 14"
+echo "      Android 3.2         = API Level 13"
+echo "      Android 3.1.x       = API Level 12"
+echo "      Android 3.0.x       = API Level 11"
+echo "      Android 2.3.3+      = API Level 10"
+echo "      Android 2.3-2.3.2   = API Level 9"
+echo "      Android 2.2.x       = API Level 8"
 echo
+echo "完整的API等级对照:"
+echo "http://developer.android.com/guide/appendix/api-levels.html"
 echo
 echo -n "更改当前 API 级别 (y/n)? (默认: n): "
 
