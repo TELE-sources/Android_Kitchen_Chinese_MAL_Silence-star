@@ -44,6 +44,10 @@ scripts/check_galaxy_s_and_s2
 is_galaxy_ss2=$?
 scripts/check_galaxy_s2x
 is_galaxy_s2x=$?
+scripts/check_galaxy_s3_common
+is_galaxy_s3_common=$?
+scripts/check_galaxy_s3_exynos
+is_galaxy_s3_exynos=$?
 
 if [ "$is_galaxy_ss2" == "1" ]
 then
@@ -299,7 +303,7 @@ cd WORKING_*
 
 show_csc=no
 
-if [ -e system/CSCVersion.txt ] || [ "$is_galaxy_ss2" == "1" ] || [ "$is_galaxy_s2x" == "1" ] || [ "$device_name" == "GT-I9001" ]
+if [ -e system/CSCVersion.txt ] || [ "$is_galaxy_ss2" == "1" ] || [ "$is_galaxy_s2x" == "1" ] || [ "$device_name" == "GT-I9001" ] || [ "$is_galaxy_s3_common" == "1" ]
 then
 
   show_csc=yes
@@ -318,7 +322,7 @@ cd ..
 
 
 
-if [ "$is_galaxy_ss2" == "1" ]
+if [ "$is_galaxy_ss2" == "1" ] || [ "$is_galaxy_s3_exynos" == "1" ]
 then
 
   #
@@ -474,7 +478,7 @@ echo " Bash shell 支持                : $bash_status"
 echo " /system/framework 已经 Deodex  : $deodex_fr_status"
 echo " /system/app 已经 Deodex        : $deodex_app_status"
 
-if [ "$is_galaxy_ss2" == "1" ]
+if [ "$is_galaxy_ss2" == "1" ] || [ "$is_galaxy_s3_exynos" == "1" ]
 then
   echo " 发现 modem.bin               : $modem_status"
 elif [ "$is_galaxy_s2x" != "1" ]

@@ -225,7 +225,7 @@ then
     echo " 可以使用updater-script (Edify) 脚本而不是"
     echo " update-script (Amend)脚本。"
     echo 
-    echo " 你的工作文件夹将保持不变，并继续使用原始update-script脚本. "
+    echo " 你的工作文件夹将保持不变，并继续使用原始update-script脚本。"
     echo 
     echo -n " 在ROM中添加updater-script脚本(y/n)? (默认: n): "
     read convert_it
@@ -275,7 +275,7 @@ then
 
       else
         echo
-        echo "Cancelling"
+        echo "取消"
       fi
 
       rm -f META-INF/com/google/android/updater-script
@@ -411,7 +411,7 @@ then
   then
     echo "发现 OUTPUT_ZIP 文件夹" 
   else
-    echo "创建 OUTPUT_ZIP 文件夹 ..."
+    echo "创建  OUTPUT_ZIP 文件夹 ..."
     mkdir ../OUTPUT_ZIP
   fi
 
@@ -437,7 +437,6 @@ then
     echo
     echo "请注意: 你需要在recovery菜单选项中禁用签名校验功能来刷入这个ROM"
     echo " 如果你稍后想签名这个ROM，请使用厨房高级菜单中签名ZIP选项。"
-	echo
   fi
 
   echo

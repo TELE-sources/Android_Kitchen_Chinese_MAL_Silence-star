@@ -28,7 +28,7 @@ do
     echo
     echo "此工具由DsiXDA开发，由MAL神族 沉默之星 汉化翻译"
     echo
-    echo "技术支持来自XDA和神族论坛，神族论坛地址（http://bbs.malshenzu.com/）"
+    echo "技术支持来自XDA和神族论坛，神族论坛地址（http://www.malshenzu.com/）"
     echo
     echo -n "感谢使用，请稍等 "
     for (( count = 0 ; $count <= $i ; count++ ))
@@ -55,7 +55,7 @@ do
     echo
     echo
     echo "错误：此应用程序 $bin 没有安装。没有它本定制工具无法正确运行。"
-    echo "        请到MAL神族论坛（http://bbs.malshenzu.com/）查阅有关"
+    echo "        请到MAL神族论坛（http://www.malshenzu.com/）查阅有关"
     echo "        本定制工具和安装 $bin 所需二进制文件的疑难问题。"
     echo 
 
@@ -71,7 +71,7 @@ do
       echo
       echo
       echo "错误：您没有安装 'sed' 的正确版本。请到MAL神族论坛"
-      echo "      （http://bbs.malshenzu.com/）查阅有关本定制工具的常见问题"
+      echo "      （http://www.malshenzu.com/）查阅有关本定制工具的常见问题"
       echo "      已确认你所安装 sed 的 GNU 版本。"
       echo
       echo

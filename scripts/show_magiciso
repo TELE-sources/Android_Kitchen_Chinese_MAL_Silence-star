@@ -29,12 +29,21 @@ echo
 echo "    注意: 查看您的文件，输入 '*.rfs' 在对话框底部 'File name' 框架。"
 echo
 
+next_num=5
+
 if [ "$img_file" == "cache.rfs" ]
 then
   echo " 3) 在右上方窗口，打开 'recovery' 文件夹使 sec_csc.zip 文件显示 "
   echo
   echo " 4) 右击 sec_csc.zip ，选中 'Extract' 并选择文件夹 $dos_path"
   echo
+
+elif [ "$img_file" == "csc.rfs" ]
+then
+  echo " 3) 在右上方窗口, 右击 csc.zip, 选中 'Extract' 并选择文件夹 $dos_path"
+  echo
+
+  next_num=4
 
 else
   echo " 3) 在右上方窗口，右击此文件夹并选择 'Select All' （选择全部） "
@@ -44,7 +53,7 @@ else
 fi
 
 echo
-echo " 5) 等待解压完成时关闭 MagicISO"
+echo " $next_num) 等待解压完成时关闭 MagicISO"
 echo      
 echo "#####################################################################"
 echo

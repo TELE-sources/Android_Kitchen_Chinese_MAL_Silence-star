@@ -66,7 +66,7 @@ then
   echo "创建日志文件 $log_file ..."
 
   echo "" >> ../$log_file
-  echo "smali/baksmali version: $version" >> ../$log_file
+  echo "smali/baksmali 版本: $version" >> ../$log_file
 fi
 
 #
@@ -79,7 +79,7 @@ do
   if [ "$do_log" == "y" ]
   then
     echo "" >> ../$log_file
-    echo "文件夹: $folder" >> ../$log_file
+    echo "文件: $folder" >> ../$log_file
     echo "-------------------" >> ../$log_file
   fi
 
@@ -163,7 +163,7 @@ do
           then
             if [ "$do_log" == "y" ]
             then
-              echo "$odex_file Deodex 操作成功" >> ../../../$log_file
+              echo "$odex_file Deodex 成功" >> ../../../$log_file
             fi
 
             break
@@ -172,7 +172,7 @@ do
         else
           if [ "$do_log" == "y" ]
           then
-            echo "$odex_file Deodex 操作成功" >> ../../../$log_file
+            echo "$odex_file Deodex 成功" >> ../../../$log_file
           fi
         fi
       done

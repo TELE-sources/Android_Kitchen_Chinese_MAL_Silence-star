@@ -23,6 +23,8 @@ do
   echo " Deodex 操作(或 de-odex)将会把 ROM 中的 *.odex 文件转换成 classes.dex 文件，"
   echo " 并将它们压缩进相应的 *.apk 或 framework 中的 *.jar 文件。"
   echo "  此进程通常需要几分钟时间，并且不需要你签名这些文件。"
+  echo  
+  echo " 注意：厨房不支持对文件重新进行odex操作，并且这是不可能实现的。"
   echo
   echo "----------------------------------------------------------------"
   echo
@@ -99,7 +101,8 @@ do
 
     echo "  v  = 设置 Android 系统的 API 级别 (当前级别 = $api_level)"
     echo
-    echo "       IMPORTANT: Ensure you set the correct API level"
+    echo "       特别注意: 请确保你设置了正确的API级别！"
+    echo "                 否则Deodex后的文件可能会出现问题！"
     echo
 
     if [ $num_odex_fr -gt 0 ]
@@ -112,12 +115,12 @@ do
     fi
     if [ $num_odex_app -gt 0 ] && [ $num_odex_fr -gt 0 ]
     then
-      echo "  b  = Deodex 两个文件夹（推荐）"
+      echo "  b  = 两个文件夹（推荐）"
     fi
-    echo "  s  = Deodex 单个文件"
+    echo "  s  = 单个文件"
     echo "  x  = 退出"
     echo
-    echo -n "请输入选择项："
+    echo -n "请输入选择项： "
 
     read enterChoice
 
@@ -218,8 +221,8 @@ do
   if [ $num_odex_fr == 0 ] && [ $num_odex_app -gt 0 ]
   then
     echo
-    echo "警告: 如果 app 文件夹已经 Deodex"
-    echo "那么 framework 文件夹也需要 Deodex"
+    echo "警告: 如果 framework 文件夹已经 Deodex"
+    echo "那么 app 文件夹必须要 Deodex"
   fi
 
   cd ..

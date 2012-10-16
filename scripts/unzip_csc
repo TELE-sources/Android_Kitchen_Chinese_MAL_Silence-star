@@ -32,12 +32,20 @@ fi
 
 system_dir=`pwd`
 
-if [ ! -e sec_csc.zip ]
+if [ -e sec_csc.zip ]
 then
-  echo "警告: 未发现 sec_csc.zip!"
-else
-  echo "从 Sec_csc.zip 中提取所需的文件 ..."
-  unzip -q sec_csc.zip -d temp_csc
+  csc_zip=sec_csc.zip
+elif [ -e csc.zip ]
+then
+  csc_zip=csc.zip
+else 
+  echo "警告: 未发现 CSC ZIP压缩文件!"
+fi
+
+if [ $csc_zip ]
+then
+  echo "从 $csc_zip 中提取所需的文件 ..."
+  unzip -q $csc_zip -d temp_csc
 
   # 
   # Carrier bloatware removal
@@ -51,7 +59,7 @@ else
     if [ "$apk_files" != "" ]
     then
       echo
-      echo "这些都是在 sec_csc.zip 中找到的应用程序:"
+      echo "这些都是在 $csc_zip 中找到的应用程序:"
       echo 
       for apk in $apk_files
       do
@@ -78,11 +86,11 @@ else
   fi
 fi
 
-rm -f sec_csc.zip 2>/dev/null
+rm -f $csc_zip 2>/dev/null
 if [ "$?" == "1" ]
 then
   echo
-  echo "警告: 正在使用中，请在应用程序关闭后手动删除文件。"
+  echo "警告: $csc_zip 正在使用中，请在应用程序关闭后手动删除文件。"
   echo
 fi
 

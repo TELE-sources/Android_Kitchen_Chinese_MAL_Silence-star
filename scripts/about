@@ -85,7 +85,7 @@ else
 
     echo "找到一个更新($latest_ver)。"
     echo
-    echo "Release notes are found online."
+    echo "更新日志未发现。"
 
     # xda-developers updates the formatting of the page, so this routine would need to
     # updated every time.  Comment out for now.
@@ -120,6 +120,7 @@ else
     then
       echo "$new_file 已成功下载"
       echo "您必须将下载的新版本厨房解压"
+	  echo "请先将旧版厨房删除后再使用此版本"
     else
       echo "错误: $new_file 没有下载成功"
       rm -f $new_file

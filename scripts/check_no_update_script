@@ -56,7 +56,7 @@ else
     echo
     echo "--- 选项 #1 会将 updater-script脚本转换"
     echo "   （Edify） 为 update-script （Amend）脚本"
-    echo "    注意:当生成的 ROM 可以更改为 Edify 格式"
+    echo "    注意:当生成新 ROM 的时候可以更改回 Edify 格式"
     echo
     echo "--- 选项 #2 如果你想在厨房里不使用任何其他选项"
     echo "    而不是生成ROM或转换到update-script脚本后才应使用"
