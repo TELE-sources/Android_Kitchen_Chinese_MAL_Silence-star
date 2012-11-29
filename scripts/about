@@ -105,7 +105,7 @@ else
     echo "正在下载 $new_file ..."
     echo
 
-    url=https://github.com/silence-star/Android_Kitchen_Chinese_MAL_Silence-star/zipball/$latest_ver
+    url=https://github.com/silence-star/Android_Kitchen_Chinese_MAL_Silence-star/archive/$latest_ver.zip
 
     wget --no-check-certificate $url -O $new_file
     echo
