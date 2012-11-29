@@ -9,7 +9,7 @@
 ############################################################################
 
 
-wget -q http://bit.ly/PU8hz0 -O notes.html
+wget -q http://stalence.diandian.com/post/2012-08-31/40037648011 -O notes.html
 
 if [ "$?" == "0" ]
 then

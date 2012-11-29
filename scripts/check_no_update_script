@@ -49,19 +49,24 @@ else
     echo "  只有 update-script 脚本可以在厨房里使用，"
     echo "  (请参阅详细解释 xda-developers.com 厨房的常见问题解答.)"
     echo
+    echo "厨房将尝试把 updater-script脚本转换成"
+    echo "update-script 脚本(或类似的)"
+    echo "update-script 脚本语法将使厨房更容易为不同的设备做出更改。"
+    echo
+    echo "当生成新 ROM 的时候可以更改回 Edify 格式"
+    echo 
+    echo "注意:"
+    echo "如果你使用的是一个厨房定制的 ROM (ZIP) "
+    echo "转换成功率可能不是 100%. 厨房将为此文件做一个备份"
+    echo " META-INF/com/google/android/updater-script.orig."
+    echo
     echo "选择一个选项:"
     echo 
-    echo "  1 = 将它转换为 update-script 脚本(推荐)"
-    echo "  2 = 什么都不做，保持该 updater-script 脚本"
+    echo "  1 = 将它转换为 update-script 脚本 (Amend 格式)"
+    echo "  2 = 什么都不做，保持该 updater-script 脚本 (Edify 格式)"
     echo
-    echo "--- 选项 #1 会将 updater-script脚本转换"
-    echo "   （Edify） 为 update-script （Amend）脚本"
-    echo "    注意:当生成新 ROM 的时候可以更改回 Edify 格式"
     echo
-    echo "--- 选项 #2 如果你想在厨房里不使用任何其他选项"
-    echo "    而不是生成ROM或转换到update-script脚本后才应使用"
-    echo
-    echo -n " 请输入选择项： (默认=1) "
+    echo -n "请输入选择项： (默认=1) "
 
     read enter_option
     if [ "$enter_option" != "2" ]
@@ -70,7 +75,10 @@ else
       scripts/fix_update_script
     else
       echo
-      echo "警告: 厨房不使用 update-script 脚本会出现问题!"
+      echo "注意: 你可以建立或者 de-odex 你的 ROM, "
+      echo "但大多数其他选项将无法正常工作. 稍后你可以"
+      echo "在高级选项菜单中选择转换 updater-script 脚本"
+      echo
       exit 1
     fi
 
@@ -85,6 +93,15 @@ else
     scripts/fix_update_script
     scripts/fix_update_script_with_features
 
+    cd WORKING_*
+    bb=`find system -name busybox`
+    cd ..
+    if [ "$bb" != "" ]
+    then
+      scripts/add_busybox_to_update_script override
+    fi
+
+    echo
   fi
 fi
 

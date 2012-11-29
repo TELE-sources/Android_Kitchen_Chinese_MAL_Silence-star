@@ -16,14 +16,14 @@ do
 
   echo
   echo "----------------------------------------------------------------"
-  echo  
+  echo
   echo " Deodex 操作的含义是使 ROM 变得定制化和轻便化；它将你的文件放在一起，"
   echo " 使它们能够用于 themes、icons、trackball/trackpad、modifications、etc 。"
-  echo  
+  echo
   echo " Deodex 操作(或 de-odex)将会把 ROM 中的 *.odex 文件转换成 classes.dex 文件，"
   echo " 并将它们压缩进相应的 *.apk 或 framework 中的 *.jar 文件。"
   echo "  此进程通常需要几分钟时间，并且不需要你签名这些文件。"
-  echo  
+  echo
   echo " 注意：厨房不支持对文件重新进行odex操作，并且这是不可能实现的。"
   echo
   echo "----------------------------------------------------------------"

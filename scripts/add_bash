@@ -50,8 +50,17 @@ fi
 bash_path=`find . -name bash`
 if [ "$bash_path" == "" ] 
 then
-  echo "添加 /system/bin/bash"
-  cp ../tools/bash system/bin/
+
+  if [ -d system/xbin ]
+  then
+    echo 已找到 /system/xbin
+  else
+    echo 创建 /system/xbin
+    mkdir system/xbin
+  fi
+
+  echo "添加 /system/xbin/bash"
+  cp ../tools/bash system/xbin/
 else
   echo "发现 $bash_path"
 fi

@@ -32,23 +32,22 @@ then
   cd ..
 
 else
+  echo "未发现工作文件夹!"
   exit 0
 fi
 
+echo
+echo -n "请稍后"
 
 #
 # Check if Samsung Galaxy S/S2
 #
 
+echo -n "."
 scripts/check_galaxy_s_and_s2
 is_galaxy_ss2=$?
-scripts/check_galaxy_s2x
-is_galaxy_s2x=$?
-scripts/check_galaxy_s3_common
-is_galaxy_s3_common=$?
-scripts/check_galaxy_s3_exynos
-is_galaxy_s3_exynos=$?
 
+echo -n "."
 if [ "$is_galaxy_ss2" == "1" ]
 then
   scripts/extract_initramfs
@@ -66,6 +65,16 @@ fi
 clear
 echo
 echo -n "请稍后 "
+
+echo -n "."
+scripts/check_galaxies
+is_galaxies=$?
+echo -n "."
+scripts/check_galaxy_s3_exynos
+is_galaxy_s3_exynos=$?
+echo -n "."
+scripts/check_gnote2_common
+is_gnote2_common=$?
 
 
 #
@@ -125,7 +134,7 @@ cd WORKING_*
 if [ "`find . -name su`" == "" ] 
 then
   su_status=NO
-elif [ "`find . -iname Superuser.apk`" == "" ]
+elif [ "`find . -iname Superuser.apk`" == "" ] && [ "`find . -iname SuperSU.apk`" == "" ]
 then
   su_status=NO
 else
@@ -303,7 +312,7 @@ cd WORKING_*
 
 show_csc=no
 
-if [ -e system/CSCVersion.txt ] || [ "$is_galaxy_ss2" == "1" ] || [ "$is_galaxy_s2x" == "1" ] || [ "$device_name" == "GT-I9001" ] || [ "$is_galaxy_s3_common" == "1" ]
+if [ -e system/CSCVersion.txt ] || [ "$device_name" == "GT-I9001" ] || [ "$is_galaxies" == "1" ]
 then
 
   show_csc=yes
@@ -322,7 +331,7 @@ cd ..
 
 
 
-if [ "$is_galaxy_ss2" == "1" ] || [ "$is_galaxy_s3_exynos" == "1" ]
+if [ "$is_galaxy_ss2" == "1" ] || [ "$is_galaxy_s3_exynos" == "1" ] || [ "$is_gnote2_common" == "1" ]
 then
 
   #
@@ -478,10 +487,10 @@ echo " Bash shell 支持                : $bash_status"
 echo " /system/framework 已经 Deodex  : $deodex_fr_status"
 echo " /system/app 已经 Deodex        : $deodex_app_status"
 
-if [ "$is_galaxy_ss2" == "1" ] || [ "$is_galaxy_s3_exynos" == "1" ]
+if [ "$is_galaxy_ss2" == "1" ] || [ "$is_galaxy_s3_exynos" == "1" ] || [ "$is_gnote2_common" == "1" ]
 then
   echo " 发现 modem.bin               : $modem_status"
-elif [ "$is_galaxy_s2x" != "1" ]
+elif [ "$is_galaxies" != "1" ]
 then
   echo "发现 radio.img                : $radio_status"
 fi

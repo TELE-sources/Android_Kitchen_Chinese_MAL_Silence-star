@@ -8,10 +8,9 @@
 #
 ############################################################################
 
+model=`scripts/get_build_prop_val ro.product.model`
 
-device=`scripts/get_build_prop_val ro.product.device`
-
-if [ -e tools/samsung_files/sgs2_variants/$device ]
+if [ -e "tools/samsung_files/model_variants/galaxy_s2/GT-I9100/$model" ]
 then
   exit 1
 else

@@ -8,12 +8,23 @@
 #
 ############################################################################
 
+my_model=`scripts/get_product_model`
 
-model=`scripts/get_build_prop_val ro.product.model`
+cd tools/samsung_files/model_variants/galaxy_note2
 
-if [ -e tools/samsung_files/sgs3_l710_variants/$model ]
-then
-  exit 1
-else
-  exit 0
-fi
+for variant_name in `ls`
+do     
+   for model_name in `ls $variant_name` 
+   do
+      if [ "$model_name" == "$my_model" ]		
+      then
+        cd ../..
+        exit 1
+      fi
+   done
+done
+
+cd ../../../..
+
+exit 0
+

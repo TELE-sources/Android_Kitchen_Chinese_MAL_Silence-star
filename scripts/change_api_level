@@ -26,6 +26,7 @@ echo
 echo "每个 API 级别对应于至少一个 Android OS 版本."
 echo
 echo "e.g."
+echo "      Android 4.2         = API Level 17"
 echo "      Android 4.1-4.1.1   = API Level 16"
 echo "      Android 4.0.3-4.0.4 = API Level 15"
 echo "      Android 4.0-4.0.2   = API Level 14"
@@ -46,7 +47,7 @@ echo
 
 if [ "$do_change" != "y" ]
 then
-  echo "Ok, 没有改变"
+  echo "OK, 没有改变"
 else 
 
   echo -n "请输入新的级别编号 (目前: $api_level): "

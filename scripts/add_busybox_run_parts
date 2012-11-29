@@ -65,19 +65,37 @@ then
   exit 0
 fi
 
+
+
+#
+# Create the folder
+#
+
+if [ ! -d system/etc/init.d ]
+then
+  echo 
+  echo "警告: 你尚未创建 /system/etc/init.d 文件夹"
+  echo
+  echo "创建 /system/etc/init.d 文件夹 ..."
+  mkdir -p system/etc/init.d
+  touch system/etc/init.d/placeholder
+fi
+
+
 cd ..
 
 
 scripts/check_galaxy_s_and_s2
 is_gs=$?
 
-device=`scripts/get_build_prop_val ro.product.device`
 
 #
 # Samsung Galaxy S2 or equivalent
 #
 if [ "$is_gs" == "1" ]
 then
+
+  device=`scripts/get_build_prop_val ro.product.device`
 
   cd WORKING_*
   test_initd=`grep -c "set_perm.*SYSTEM:etc/init.d" META-INF/com/google/android/update-script`
@@ -170,10 +188,10 @@ else
     cd ../..
     scripts/add_busybox
 
-    cd WORKING_*
+    #cd WORKING_*
     #bb_path=`find . -name busybox | grep -m 1 busybox | sed -e 's/\.//g' -e 's/\//\\\\\//g'`
-      
-    cd ..
+    #cd ..
+
     cd BOOT-EXTRACTED/boot.img-ramdisk
 
 
@@ -232,3 +250,5 @@ else
   echo
 
 fi
+
+

@@ -43,11 +43,16 @@ then
 else
 
   #
-  # Check for factoryfs.img, cache.img and zImage in original_update  
+  # Check for factoryfs.img, hidden.img, cache.img and zImage in original_update  
   #
   if [ -e original_update/factoryfs.img ]
   then
     echo "发现 original_update/factoryfs.img"
+    
+    if [ -e original_update/hidden.img ]
+    then
+      echo "发现 original_update/hidden.img"
+    fi
 
     if [ -e original_update/cache.img ]
     then
@@ -55,17 +60,10 @@ else
     else
       scripts/show_cache_warning original_update/cache.img
     fi
+
   else
-
-    if [ -e original_update/cache.img ]
-    then
-      echo "发现 original_update/cache.img"
-      echo "错误: 未发现 original_update/factoryfs.img"
-    else
-      echo
-      echo "错误: 未在 original_update 文件夹下发现 ROM 文件!"
-    fi
-
+    echo
+      echo "错误: 未在 original_update 文件夹下发现 factoryfs.img 文件!"
     exit 1
   fi
 
@@ -74,6 +72,7 @@ else
     echo "发现 original_update/zImage"
     scripts/show_rooted_kernel_msg
   else
+    echo
     echo "警告: 未发现 original_update/zImage"
   fi
 
@@ -115,8 +114,10 @@ fi
 if [ "$1" == "no_create" ]
 then
   src_dir=$build_dir/system
+  hidden_dir=$build_dir
 else
   src_dir=original_update
+  hidden_dir=$src_dir
 fi
 
 system_dir=$build_dir/system
@@ -217,6 +218,222 @@ echo "ext4_factoryfs.img 已经被解包为:"
 echo "  $system_dir"
 
 
+
+base_dir=`pwd`
+
+
+######################################################################
+# Check for symlinks to /preload/symlink/system/app under /system/app
+######################################################################
+
+cd $system_dir/app
+
+# First check for *.apk and *.odex with symlink to preload/symlink/system/app
+# and delete them (this works for Linux / OS X)
+
+preload_links=( `find . -type l -exec ls -l {} \; | grep /preload/symlink/system/app | sed 's/.* \/preload\/symlink\/system\/app\/\(.*\)/\1/g'` )
+
+if [ "$preload_links" != "" ]
+then
+
+  num_preload_links=${#preload_links[@]}
+
+  echo 
+  echo -n "在 /system/app 中,  从 /preload/symlink/system/app 中删除到 APK 和 ODEX 文件的 <<$num_preload_links>> 符号链接"
+  for item in ${preload_links[@]} 
+  do
+    echo -n "."
+    rm -f $item  
+  done
+
+  use_hidden=1
+
+else
+
+  # Check if the number of odex files outnumbers number of apks (this works for Cygwin)
+
+  num_odex_app=`find . | grep -c "\.odex$"`
+  num_apk_app=`find . | grep -c "\.apk$"`
+
+  if [ $num_odex_app -gt $num_apk_app ]
+  then
+    echo
+    echo " /system/app 文件夹丢失了一些 APK (也许是一些 ODEX) 文件."
+
+    use_hidden=1
+  fi
+fi
+
+cd $base_dir
+
+if [ "$use_hidden" == "1" ]
+then
+  
+  echo
+  echo "这些可能会在 hidden.img 中发现"
+
+  if [ ! -e $hidden_dir/hidden.img ]
+  then
+    echo
+    echo "--> 请将 hidden.img 放到 '$hidden_dir' 文件夹下 <--"
+    echo "              (你也可以忽略这一步)"
+    echo
+    
+    scripts/press_enter
+
+    if [ ! -e $hidden_dir/hidden.img ]
+    then
+      echo "跳过 hidden.img"
+    fi
+  fi
+
+
+  #
+  # hidden.img unpacking
+  #
+
+  if [ -e $hidden_dir/hidden.img ]
+  then
+
+    working_dir=$system_dir/..
+    hidden_dir2=$working_dir/hidden
+    mkdir $hidden_dir2
+    cd $hidden_dir2
+    hidden_dir2=`pwd`
+    cd $base_dir
+
+    echo
+    echo "为解包转换 hidden.img 成一种格式 ..."
+    tools/samsung_files/simg2img_files/simg2img $hidden_dir/hidden.img \
+      $hidden_dir2/ext4_hidden.img
+
+    if [ ! -e $hidden_dir2/ext4_hidden.img ]
+    then
+      echo "未能转换 hidden.img!"
+      exit 1
+    fi
+
+    if [ "$hidden_dir" != "original_update" ]
+    then
+      rm -f $hidden_dir/hidden.img
+    fi
+
+    #
+    # Extract files from ext4_hidden.img
+    #
+
+    if [ `uname | grep CYGWIN` ]
+    then
+      scripts/show_ext2explore $hidden_dir2 ext4_hidden.img
+    else
+      scripts/extract_ext3_img $hidden_dir2 ext4_hidden.img
+    fi
+
+    rm -f $hidden_dir2/ext4_hidden.img 2>/dev/null
+    if [ "$?" == "1" ]
+    then
+      echo
+      echo "警告: ext4_hidden.img 正在使用中，请在应用程序关闭后手动删除文件。"
+      echo
+    fi
+
+    echo
+
+    #
+    # Check if preload files are found in hidden.img
+    #
+    if [ -d $hidden_dir2/symlink/system/app ] 
+    then
+      num_preload_apk=`find $hidden_dir2/symlink/system/app | grep -c "\.apk$"`
+      num_preload_odex=`find $hidden_dir2/symlink/system/app | grep -c "\.odex$"`
+
+      num_preload_total=$(($num_preload_apk + $num_preload_odex))
+
+      if [ $num_preload_total -gt 0 ]
+      then
+        echo "在 hidden.img 中发现 <<$num_preload_total>> APK 和 ODEX 文件"
+        mkdir -p $working_dir/preload/symlink/system
+        mv $hidden_dir2/symlink/system/app $working_dir/preload/symlink/system/ 
+
+        if [ "$num_preload_links" != "" ]
+        then
+          if [ $num_preload_links != $num_preload_total ]
+          then
+            echo "警告: 这个数字不等于在 /system/app 下找到的符号链接!"
+          else
+            echo "这个数字与在 /system/app 下找到的符号链接相同"
+          fi
+        fi
+
+
+        #
+        # Closing comments about /preload stuff
+        #
+
+        device_name=`scripts/get_samsung_variant`
+
+        if [ "$device_name" == "" ]
+        then
+          echo
+          echo "警告: 在 /tools/edify_defs 中尚未确定设备名称!"
+          echo
+        else
+          preload_mnt=`scripts/get_edify_def_val $device_name preload_mnt`
+
+          if [ "$preload_mnt" != "UNKNOWN" ]
+          then
+            echo
+            preload_mnt=`echo $preload_mnt | sed -e 's/\\\\//g'`
+
+            echo "在 /tools/edify_defs/$device_name 中 /preload 的挂载点已为此设备定义"
+            echo "为 $preload_mnt . "
+            echo "Good."
+          else
+            echo
+            echo "警告: /preload 的挂载点 ('preload_mnt') 在"
+            echo "tools/edify_defs/$device_name 中未定义! 请在进行下一步前确定指定好"
+            echo "(在完成后输入回车，或者跳过这一步)。"
+            echo
+            scripts/press_enter
+          fi
+        fi
+
+        echo 
+        echo "注意: 如果你想要对这个 ROM 进行 de-odex 合并, 你需要手动从 /preload 文件夹"
+        echo "复制 APK 和 ODEX 文件到 /system/app, 并在之后将"
+        echo "完成 de-odex 合并的 APKs 移回原先的文件夹!"
+        echo
+
+      else
+        echo "警告: 在 hidden.img 中未发现 APK/ODEX 文件!"
+      fi
+    else
+      echo "警告: 在 hidden.img 中未发现 /preload/symlink/system/app 文件夹!"
+    fi
+
+    echo
+    echo
+
+    rm -rf $hidden_dir2
+  fi
+
+elif [ -e $hidden_dir/hidden.img ]
+then
+  echo
+  echo "忽略 hidden.img"
+
+  if [ "$hidden_dir" != "original_update" ]
+  then
+    rm -f $hidden_dir/hidden.img
+  fi
+fi
+
+
+
+
+cd $base_dir
+
+
 if [ -e $src_dir/cache.img ]
 then
   echo
@@ -264,7 +481,7 @@ then
     if [ "$?" == "1" ]
     then
       echo
-      echo "警告: ext4_cache.img 请在应用程序关闭后手动删除文件。"
+      echo "警告: ext4_cache.img 正在使用中，请在应用程序关闭后手动删除文件。"
       echo
     fi
 

@@ -33,7 +33,6 @@ else
 
   current_dir=`pwd`
   dest_dir=$current_dir/original_update
-  scripts/check_no_bootimg $dest_dir
 
   #
   # Check for system.img/boot.img/lib.img in original_update  
@@ -44,10 +43,6 @@ else
     if [ -e original_update/boot.img ]
     then
       echo "发现 original_update/boot.img"
-    else
-      echo "错误: 未发现 original_update/boot.img"
-      echo
-      exit 1
     fi
 
     if [ -e original_update/lib.img ]
@@ -80,8 +75,12 @@ else
   mkdir $build_dir
   mkdir $build_dir/system
 
-  echo "复制 boot.img ..."
-  cp original_update/boot.img $build_dir
+  if [ -e original_update/boot.img ]
+  then
+    echo "复制 boot.img ..."
+    cp original_update/boot.img $build_dir
+  fi
+
   echo "复制 system.img ..."
   cp original_update/system.img $build_dir/system
 
@@ -343,6 +342,8 @@ fi
 # Wi-fi fix - required for some Huawei devices
 scripts/fix_huawei_wifi
 
+# Sony Xperia 2011-12 devices - bloatware
+scripts/remove_xperia_bloat
 
 if [ "$2" != "kernel_only" ] && [ "$2" != "name_given" ]
 then
@@ -353,6 +354,9 @@ then
 
   scripts/remove_recovery
 fi
+
+# Symlink fix
+scripts/fix_lib_modules
 
 echo $build_dir 列表:
 echo

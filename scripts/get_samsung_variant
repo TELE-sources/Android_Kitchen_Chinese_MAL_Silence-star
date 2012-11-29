@@ -8,12 +8,23 @@
 #
 ############################################################################
 
+my_model=`scripts/get_product_model`
 
-model=`scripts/get_build_prop_val ro.product.model`
+cd tools/samsung_files/model_variants
 
-if [ -e tools/samsung_files/sgs3_i9300_variants/$model ]
-then
-  exit 1
-else
-  exit 0
-fi
+for device_dir in `ls`
+do
+  for variant_name in `ls $device_dir`
+  do 
+    if [ -e "$device_dir/$variant_name/$my_model" ]
+    then
+      echo $variant_name
+      cd ../../..
+      exit 0
+    fi
+  done
+done
+
+cd ../../..
+echo ""
+

@@ -52,7 +52,7 @@ echo
 
 if [ "$do_change" == "n" ]
 then
-  echo "Ok, 命令行没有更改"
+  echo "OK, 命令行没有更改"
 
 else 
 

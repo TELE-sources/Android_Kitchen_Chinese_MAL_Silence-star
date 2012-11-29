@@ -90,38 +90,36 @@ echo
 if [ -d system/xbin ]
 then
   echo 发现 /system/xbin
+
+  if [ -e system/xbin/busybox ] 
+  then
+
+    echo
+    echo "工作文件夹中已经存在 /system/xbin/busybox"
+
+    if [ "$1" == "show_help" ]
+    then
+      echo -n "使用 BusyBox $version 替换(y/n)? (默认: y): "
+      read replace_bb
+      echo
+    else
+      replace_bb=n
+    fi
+
+    if [ "$replace_bb" == "n" ]
+    then
+      cd ..
+      exit 0
+    fi
+
+    echo "替换 /system/xbin/busybox"
+  fi
 else
   echo 创建 /system/xbin
   mkdir system/xbin
 fi
 
-echo
-
-if [ -e system/xbin/busybox ] 
-then
-
-  echo "工作文件夹中已经存在 /system/xbin/busybox"
-
-  if [ "$1" == "show_help" ]
-  then
-    echo -n "使用 BusyBox $version 替换(y/n)? (默认: y): "
-    read replace_bb
-    echo
-  else
-    replace_bb=n
-  fi
-
-  if [ "$replace_bb" == "n" ]
-  then
-    cd ..
-    exit 0
-  fi
-
-  echo "替换 /system/xbin/busybox"
-else
-  echo "添加 /system/xbin/busybox"
-fi
-
+echo "添加 /system/xbin/busybox"
 cp -f ../tools/busybox_files/busybox system/xbin/
 cd ..
 

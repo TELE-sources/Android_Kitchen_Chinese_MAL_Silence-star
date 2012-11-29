@@ -39,7 +39,7 @@ elif [ -e csc.zip ]
 then
   csc_zip=csc.zip
 else 
-  echo "警告: 未发现 CSC ZIP压缩文件!"
+  echo "警告: 未发现 CSC.zip 文件!"
 fi
 
 if [ $csc_zip ]

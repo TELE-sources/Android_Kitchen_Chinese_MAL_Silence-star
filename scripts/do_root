@@ -64,11 +64,21 @@ fi
 
 su_path=`find . -name su`
 super_path=`find . -iname Superuser.apk`
+
+super_su_exists=0
+if [ "$super_path" == "" ]
+then
+  super_path=`find . -iname SuperSU.apk`
+  if [ "$super_path" != "" ]
+  then
+    super_su_exists=1
+  fi
+fi
 overwrite=0
 
 if [ "$su_path" != "" ] && [ "$super_path" != "" ] 
 then
-  echo "su二进制文件 和 Superuser.apk 文件已经存在"
+  echo "/system 文件夹已存在 $su_path 和 $super_path"
   echo -n "覆盖(y/n)? (默认: n): "
   read do_su
 
@@ -88,14 +98,9 @@ fi
 echo "请选择你想要安装的不同版本 Superuser 程序包"
 echo
 
-if [ "`grep -c ro.build.version.release=1 build.prop`" != "0" ]
-then
-  echo " d - ChainsDD 的 Cupcake/Donut    (Android 1.x)" 
-else
-  echo " f - ChainsDD 的版本         (Android 2.x+)" 
-fi
-
-echo " s - 旧的和简单的版本      (所有 Android)"
+echo " c - Chainfire 的 SuperSU"
+echo " d - ChainsDD 的版本" 
+echo " v - 最初的版本 (很旧)"
 echo
 echo " x - 取消 ROOT 权限             (默认)"
 echo
@@ -104,13 +109,18 @@ echo -n "请输入选择项： "
 read enterVersion
 echo
 
-if [ "$enterVersion" == "d" ]
+if [ "$enterVersion" == "c" ]
 then
-  folder=cupcake-donut
-elif [ "$enterVersion" == "f" ]
+  folder=chainfire
+elif [ "$enterVersion" == "d" ]
 then
-  folder=current
-elif [ "$enterVersion" == "s" ]
+  if [ "`grep -c ro.build.version.release=1 build.prop`" != "0" ]
+  then
+    folder=cupcake-donut
+  else
+    folder=current
+  fi
+elif [ "$enterVersion" == "v" ]
 then
   folder=old
 else
@@ -122,23 +132,38 @@ fi
 if [ "$overwrite" == "1" ]
 then
   echo
-  echo "覆盖旧的 su 二进制文件和 Superuser.apk ..."
+  echo "覆盖原有的 'su' 和 Superuser.apk 文件 ..."
   rm -fv $su_path
   rm -fv $super_path
 fi
 
-if [ "$enterVersion" == "s" ] 
+
+
+if [ -d xbin ]
 then
-  cp -fv ../../tools/su_files/$folder/app/Superuser.apk app
-  cp -fv ../../tools/su_files/$folder/bin/su bin
+  echo 发现 /system/xbin
 else
+  echo 创建 /system/xbin
+  mkdir xbin
+fi
+
+if [ "$enterVersion" == "d" ]
+then
   cp -fv ../../tools/su_files/chainsdd/Superuser.apk app
-  cp -fv ../../tools/su_files/chainsdd/$folder/su bin
+  cp -fv ../../tools/su_files/chainsdd/$folder/su xbin
+else
+  cp -fv ../../tools/su_files/$folder/app/Superuser.apk app
+  cp -fv ../../tools/su_files/$folder/bin/su xbin
+fi
+
+if [ "$super_su_exists" == "1" ] && [ "$enterVersion" == "c" ]
+then
+  mv -fv app/Superuser.apk app/SuperSU.apk
 fi
 
 cd ../..
 
-
+echo
 scripts/add_su_to_update_script
 
 if [ "$sgs" == "0" ]
@@ -147,7 +172,7 @@ then
 fi
 
 echo 
-echo "ROOT 权限完成"
+echo "添加 ROOT 权限完成"
 echo
 
 scripts/press_enter

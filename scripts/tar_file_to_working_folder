@@ -45,12 +45,12 @@ echo "创建工作文件夹 $build_dir ..."
 mkdir $build_dir
 
 echo
-echo "解压 ROM ..."
+echo "从 TAR 文件解压 ROM ..."
 
 tar xvf original_update/$update_file -C $build_dir -x factoryfs.img cache.img modem.bin \
       zImage factoryfs.rfs cache.rfs PDA.tar.md5 CSC.tar.md5 PHONE.tar.md5 PDA.tar CSC.tar \
       PHONE.tar system.img system.img.ext4 system.rfs cache.img.ext4 boot.img csc.rfs \
-      system 2>/dev/null
+      system hidden.img 2>/dev/null
 
 cd $build_dir
 
@@ -73,22 +73,12 @@ then
 elif [ -e system.img ]
 then
 
-  if [ -e boot.img ]
-  then
-    echo "Found boot.img"
-  fi
-
   cd ..
   scripts/img_files_to_working_folder no_create $2
   exit $?
 
 elif [ -e system.img.ext4 ]
 then
-
-  if [ -e boot.img ]
-  then
-    echo "发现 boot.img"
-  fi
 
   cd ..
   scripts/simg_ext4_files_to_working_folder no_create $2

@@ -22,12 +22,12 @@ The format for each ROM must be one of the following:
  - TAR/ZIP file containing the above
  
  Samsung Galaxy SII:
- - factoryfs.img + optional cache.img/zImage  
+ - factoryfs.img + optional hidden.img/cache.img/zImage  
  - system.img.ext4 + optional cache.img.ext4/boot.img
  - TAR/ZIP file containing the above
  - system.ext4.tar + optional boot.img (Nandroid backup)
  
- Samsung Galaxy SIII
+ Samsung Galaxy SIII / Galaxy Note II
  - system.img.ext4 + optional cache.img.ext4/boot.img
  - system.img + optional cache.img/boot.img/modem.bin
  - TAR/ZIP file containing the above
@@ -35,7 +35,7 @@ The format for each ROM must be one of the following:
 
  Samsung - untested devices (e.g. Galaxy Mini):
  - system.rfs + optional csc.rfs/boot.img
- - TAR file containing the above
+ - TAR/ZIP file containing the above
 
  Huawei:
  - APP file from Huawei software update (e.g. UPDATE.APP)

@@ -40,8 +40,9 @@ then
 
 elif [ "$img_file" == "csc.rfs" ]
 then
-  echo " 3) 在右上方窗口, 右击 csc.zip, 选中 'Extract' 并选择文件夹 $dos_path"
+  echo " 3) 在右上方窗口, 右击 csc.zip, 选中 'Extract' 并选择一个文件夹"
   echo
+  echo "    $dos_path"
 
   next_num=4
 

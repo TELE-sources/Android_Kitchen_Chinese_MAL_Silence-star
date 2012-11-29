@@ -119,7 +119,8 @@ else
     if [ -e $new_file ] && [ $grep_empty == 0 ]
     then
       echo "$new_file 已成功下载"
-      echo "您必须将下载的新版本厨房解压"
+	  echo
+      echo "你必须将下载的新版本厨房解压"
 	  echo "请先将旧版厨房删除后再使用此版本"
     else
       echo "错误: $new_file 没有下载成功"

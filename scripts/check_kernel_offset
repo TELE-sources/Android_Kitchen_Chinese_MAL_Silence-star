@@ -51,9 +51,20 @@ then
       exit 1
     fi
 
-    echo "Kernel在boot.img中找到在偏移 $dec_offset"
+    echo "Kernel 在 boot.img 中偏移 $dec_offset"
 
-    scripts/set_kernel_offset_files $dec_offset
+    # Check for MT65XX
+    scripts/check_mt65xx_bootimg $working_folder $dec_offset
+    mt65xx=$?
+
+    if [ "$mt65xx" == "1" ]
+    then
+      type=mt65xx
+    else
+      type=""
+    fi
+
+    scripts/set_kernel_offset_files $dec_offset $type
     exit $?
 
   else

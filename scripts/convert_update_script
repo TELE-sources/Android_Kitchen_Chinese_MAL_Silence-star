@@ -46,10 +46,10 @@ then
   echo
   echo " 此脚本将 update-script 转换为 updater-script 并且添加 update-binary 文件。"
   echo " 此操作在打包 ROM 时也会提示, 所以现在并不是必须转换 update-script 脚本。"
-  echo " 厨房不能编译 updater-scripts 脚本，所以只有在打包 ROM 刷机包文件时，"
-  echo " 才可以使用 updater-script 脚本。"
+  echo " 厨房不能编译 updater-scripts 脚本，所以之后只有少数选项"
+  echo " 可以使用 updater-script 脚本。"
   echo
-  echo " 请确认工作文件夹 META-INF/com/google/android 下有update-script 脚本。"
+  echo " 请确认工作文件夹 META-INF/com/google/android 下有 update-script 脚本。"
   echo
   echo -n "继续并转换(y/n)? (默认: y): "
 
@@ -127,9 +127,9 @@ echo
 
 cp update-script updater-script
 
-orig_list=( DATA SYSTEM CACHE SDEXT BOOT SDCARD )
-new_list=( userdata system cache sdext boot sdcard )
-new_list_str="0 1 2 3 4 5"
+orig_list=( DATA SYSTEM PRELOAD CACHE SDEXT BOOT SDCARD )
+new_list=( userdata system preload cache sdext boot sdcard )
+new_list_str="0 1 2 3 4 5 6"
 
 
 echo "- 初始格式设置 ..."
@@ -246,6 +246,7 @@ sed -i \
   -e 's/\(package_extract_dir.*\) \(.*\)/\1", "\2/g' \
   -e 's/\(package_extract_dir.*\)PACKAGE:/\1/g' \
   -e 's/\(package_extract_dir.*\)SYSTEM:\([^)]*\))/\1\/system\/\2)/g' \
+  -e 's/\(package_extract_dir.*\)PRELOAD:\([^)]*\))/\1\/preload\/\2)/g' \
   -e 's/\(package_extract_dir.*\)DATA:\([^)]*\))/\1\/data\/\2)/g' \
   -e 's/\(package_extract_dir.*\)TMP:\([^)]*\))/\1\/tmp\/\2)/g' \
   -e 's/\(package_extract_dir.*\)SDCARD:\([^)]*\))/\1\/sdcard\/\2)/g' \
@@ -373,6 +374,17 @@ sed -i \
 
 
 #
+# sleep
+#
+echo "- sleep ..."
+
+sed -i \
+  -e 's/sleep \(.*\)/sleep(\1);/g' \
+  updater-script
+
+
+
+#
 # delete / delete_recursive
 #
 echo "- delete/delete_recursive ..."
@@ -381,6 +393,7 @@ sed -i \
   -e 's/delete \(.*\)/delete(\"\1\");/g' \
   -e 's/delete_recursive \(.*\)/delete_recursive(\"\1\");/g' \
   -e 's/\(delete.*\)SYSTEM:/\1\/system\//g' \
+  -e 's/\(delete.*\)PRELOAD:/\1\/preload\//g' \
   -e 's/\(delete.*\)DATA:/\1\/data\//g' \
   -e 's/\(delete.*\)SDCARD:/\1\/sdcard\//g' \
   -e 's/\(delete.*\)CACHE:/\1\/cache\//g' \
@@ -752,6 +765,28 @@ cd META-INF/com/google/android
 sed -i -e '/^$/d' updater-script
 
 
+test_mnt=`grep "^mount(" updater-script`
+test_mnt2=`grep "sbin/mount\", \"" updater-script`
+
+if [ "$test_mnt" != "" ] || [ "$test_mnt2" != "" ]
+then
+  echo 
+  echo
+  echo "请确保这些设备的挂载陈述是正确的:"
+  echo "--------------------------------------------------------------------------"  
+
+  if [ "$test_mnt" != "" ]
+  then
+    grep "^mount(" updater-script
+  fi
+
+  if [ "$test_mnt2" != "" ]
+  then 
+    grep "sbin/mount\", \"" updater-script
+  fi
+
+  echo "--------------------------------------------------------------------------"
+fi
 
 
 if [ -e updater-script ]

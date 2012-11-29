@@ -59,12 +59,12 @@ then
       grep_wipe=`grep -c "format .*DATA:" update-script`
       if [ "$grep_wipe" == "1" ]
       then
-        echo "Ok, ROM 现在将wipe你的数据"
+        echo "OK, ROM 现在将wipe你的数据"
       else
         echo "错误: 无法修改 update-script 脚本"
       fi
     else
-      echo "Ok, 没有修改"
+      echo "OK, 没有修改"
     fi
     
 
@@ -82,12 +82,12 @@ then
       grep_wipe=`grep -c "format .*DATA:" update-script`
       if [ "$grep_wipe" == "0" ]
       then
-        echo "Ok, ROM 将不再 wipe 你的数据"
+        echo "OK, ROM 将不再 wipe 你的数据"
       else
         echo "错误: 无法修改 update-script 脚本"
       fi
     else
-      echo "Ok, 没有修改"
+      echo "OK, 没有修改"
     fi
 
   fi

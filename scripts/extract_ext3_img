@@ -191,8 +191,8 @@ then
       if [ "$result" != "0" ]
       then
         echo
-        echo "Your system does not have FUSE installed."
-        echo "Read the Android Kitchen FAQ to install MacFUSE, followed by fuse-ext2."
+        echo "你的系统未安装 FUSE ."
+        echo "阅读安卓厨房常见问题去安装 MacFUSE, 按照 fuse-ext2."
         exit 1
       fi
 
@@ -211,6 +211,15 @@ then
 
   cd $base_dir
   cd $img_dir
+
+  # Check for CSC plugin script
+  if [ "`echo $img_dir | grep csc_`" != "" ] && [ "`echo $img_dir | grep WORKING_`" == "" ]
+  then
+    mkdir system
+    mv $img_file system
+    cd system
+    csc_plugin=1
+  fi
 
   echo
   echo "准备从 $img_file 提取文件"
@@ -266,8 +275,15 @@ then
     hdiutil detach $mydisk
   fi
 
-  mv $img_file $img_dir/$img_file
-  cd system
+  # Check again for CSC plugin
+  if [ "$csc_plugin" == "1" ]
+  then
+    mv system/*.zip .
+    rm -rf system
+  else
+    mv $img_file $img_dir/$img_file
+    cd system
+  fi
 
   if [ "$listing" != "" ]
   then

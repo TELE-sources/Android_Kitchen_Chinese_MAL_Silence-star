@@ -45,10 +45,76 @@ echo "创建工作文件夹 $build_dir ..."
 mkdir $build_dir
 
 echo
-echo "解压 ROM ..."
-unzip -q original_update/$update_file -d $build_dir -x bootloader.img recovery.img recovery_signed.img userdata.img radio.img rcdata.img splash1.nb0 splash2.nb0 android-info.txt 2>/dev/null
+echo "从 ZIP 文件中解压 ROM ..."
 
-if [ "$?" == "9" ]
+if [ `uname | grep CYGWIN` ]
+then
+
+  #
+  # Instead of 'unzip -qo' (the 'o' would force overwrite), show the user a prompt if a duplicate filename is encountered;
+  # e.g. In a case where we have /system/lib/libdivxdrm.so and /system/lib/libDivxDrm.so, it would ask to overwrite/rename
+  # or ignore one of them.  This way, the user won't be unaware of the duplicate file name.
+  #
+  # To show the prompt in the unzip command, disable the output to /dev/null. To prevent displaying warnings about excluded  
+  # files (because /dev/null is not used anymore) put them in the 'rm' command instead of in unzip's '-x' arguments.
+  #
+  # This is not a faster method than "unzip -q ... -x ... 2>/dev/null", but it prevents the kitchen from hanging at unzip.
+  #
+  # Also, this is just a workaround, it doesn't fix the duplicate file name issue. You have two options to fix the issue:
+  #
+  # 1) Use an operating system that uses case-sensitive file names (Linux or OS X)
+  # 2) In the Windows registry, set HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel\obcaseinsensitive to 0 and
+  #    reboot... but do this at your own risk.
+  #
+  unzip -q original_update/$update_file -d $build_dir 2>&1 | tee unzip.log
+  unzip_result=$?
+  
+  rm -f bootloader.img recovery.img recovery_signed.img userdata.img radio.img rcdata.img splash1.nb0 splash2.nb0 android-info.txt 
+
+  replace_count=`grep -c replace unzip.log`
+  rm -f unzip.log
+
+  if [ $replace_count -gt 0 ]
+  then
+    echo
+    echo
+    echo "警告"
+    echo "-------"
+    echo "你的 ZIP 压缩包中有两个名字相同但大小写不同的文件，这是你看到上述提示的原因。"
+    echo "因为 Windows 是不区分大小写的，它把两个文件都作为一个单独的文件，"
+    echo "而不是两个不同的文件！"
+    echo
+    echo "您可以选择忽略这个问题，或者退出。有两种方法来解决这个问题："
+    echo 
+    echo "1) 使用区分大小写的系统 (如 Linux 或 OS X), 或者"
+    echo "2) 在 Windows 的注册表中设置: "
+    echo "   HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\kernel\obcaseinsensitive 为 0"
+    echo "   并重启. 然而，这会影响所有的Windows - 这样做后果自负!"
+    echo 
+    echo
+    echo -n "你想忽略这个问题么 (y/n)? (默认: n): "
+    read do_ignore
+
+    if [ "$do_ignore" != "y" ]
+    then
+      echo
+      echo "OK, 正在中止"
+      cd ..
+      exit 1
+    else
+      echo
+      echo "OK, 已忽略, 但你的 ROM 也许会存在稳定性问题!"
+    fi
+  fi
+
+else
+  unzip -q original_update/$update_file -d $build_dir -x bootloader.img recovery.img recovery_signed.img userdata.img radio.img rcdata.img splash1.nb0 splash2.nb0 android-info.txt 2>/dev/null
+
+  unzip_result=$?
+
+fi
+
+if [ "$unzip_result" == "9" ]
 then
   echo
   echo "错误: 未能解压 ROM!"
@@ -124,9 +190,16 @@ elif [ -e factoryfs.img ]
 then
   echo 发现 factoryfs.img
 
+  if [ -e hidden.img ]
+  then
+    echo "发现 hidden.img"
+  else
+    echo "未发现 hidden.img"
+  fi
+
   if [ -e cache.img ]
   then
-    echo 发现 cache.img
+    echo "发现 cache.img"
   else
     echo "警告: 未发现 cache.img"
   fi
@@ -177,6 +250,20 @@ then
   cd ..
   scripts/simg_ext4_files_to_working_folder no_create $2
   exit $?
+
+
+
+#
+# Check for certain Samsung factory images
+#
+elif [ -e system.rfs ]
+then
+
+  cd ..
+  echo "发现 system.rfs"
+  scripts/rfs_files_to_working_folder no_create $2
+  exit $?
+
 
 
 #

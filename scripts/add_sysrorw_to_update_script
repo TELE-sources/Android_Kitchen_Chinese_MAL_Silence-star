@@ -46,8 +46,25 @@ then
 
     echo
     echo "添加 sysro 和 sysrw 内容到 update-script 脚本"
-    perl -pi -e 's/set_perm 0 2000 0550 SYSTEM:etc\/init.goldfish.sh/set_perm 0 2000 0550 SYSTEM:etc\/init.goldfish.sh\nset_perm 0 0 04755 SYSTEM:xbin\/sysrw\nset_perm 0 0 04755 SYSTEM:xbin\/sysro\n/g' update-script
+
+
+    if [ `grep -c "set_perm_recursive.*SYSTEM:xbin[ ]*$" update-script` != 0 ]
+    then
+      sed -i -e 's/set_perm_recursive\(.*\)SYSTEM:xbin[ ]*$/set_perm_recursive\1SYSTEM:xbin\nset_perm 0 0 04755 SYSTEM:xbin\/sysrw\nset_perm 0 0 04755 SYSTEM:xbin\/sysro\n/' update-script
+
+    elif [ `grep -c "init.goldfish.sh" update-script` != 0 ]
+    then
+      perl -pi -e 's/set_perm 0 2000 0550 SYSTEM:etc\/init.goldfish.sh/set_perm 0 2000 0550 SYSTEM:etc\/init.goldfish.sh\nset_perm 0 0 04755 SYSTEM:xbin\/sysrw\nset_perm 0 0 04755 SYSTEM:xbin\/sysro\n/g' update-script
  
+    elif [ `grep -c "write_raw_image .*:boot.img BOOT:" update-script` != 0 ]
+    then
+      sed -i -e 's/write_raw_image \(.*:boot.img\) BOOT:/set_perm 0 0 04755 SYSTEM:xbin\/sysrw\nset_perm 0 0 04755 SYSTEM:xbin\/sysro\nwrite_raw_image \1 BOOT:/' update-script
+    
+    else
+      echo "set_perm 0 0 04755 SYSTEM:xbin/sysrw" >> update-script
+      echo "set_perm 0 0 04755 SYSTEM:xbin/sysro" >> update-script
+    fi
+    
     if [ "`grep -om 1 sysro update-script`" != "sysro" ] || [ "`grep -om 1 sysrw update-script`" != "sysrw" ]
     then
       echo "错误: 无法在 update-script 脚本中添加 sysro/sysrw"

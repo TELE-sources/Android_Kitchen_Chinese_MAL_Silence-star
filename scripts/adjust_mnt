@@ -24,75 +24,74 @@ then
   fi
 
 
-  # First check for Samsung Galaxy S/S2
-  scripts/check_galaxy_s
-  is_gs=$?
+  cd WORKING_*
+  working_folder=`pwd`
+  cd ..
 
-  if [ "$is_gs" == "1" ]
+
+  #
+  # Find device name for lookup in edify_defs folder
+  #
+  device_name=`scripts/get_samsung_variant`
+
+  if [ "$device_name" == "" ]
   then
-    device_name="GT-I9000"
-  else
-    scripts/check_galaxy_s2
-    is_gs2=$? 
+    device_name=`scripts/get_device_name`
 
-    if [ "$is_gs2" == "1" ]
+    if [ -e $working_folder/boot.img ]
     then
-      device_name="GT-I9100"
-    
-    else
-      scripts/check_galaxy_s2x
-      is_gs2x=$?
+      scripts/check_mt65xx_bootimg
+      is_mt65xx_bootimg=$?
+    fi      
 
-      if [ "$is_gs2x" == "1" ]
+  else
+
+    is_mt65xx_bootimg=0
+
+    #
+    # Check Galaxy platform type
+    #
+
+    scripts/check_galaxy_s
+    is_gs=$?
+
+    if [ "$is_gs" != "1" ]
+    then
+      scripts/check_galaxy_s2
+      is_gs2=$? 
+
+      if [ "$is_gs2" != "1" ]
       then
-        device_name="GT-I9100X"
-      else
+        scripts/check_galaxy_s2x
+        is_gs2x=$?
 
-        scripts/check_galaxy_s3_common
-        is_gs3_common=$?
-        scripts/check_galaxy_s3_exynos
-        is_gs3_exynos=$?
+        if [ "$is_gs2x" != "1" ]
+        then
+          scripts/check_galaxy_s3_exynos
+          is_gs3_exynos=$?
 
-        scripts/check_galaxy_s3_t999
-        is_gs3_t999=$? 
-        scripts/check_galaxy_s3_i747
-        is_gs3_i747=$?
-        scripts/check_galaxy_s3_i9300
-        is_gs3_i9300=$?
-        scripts/check_galaxy_s3_l710
-        is_gs3_l710=$?
-        scripts/check_galaxy_s3_i535
-        is_gs3_i535=$?
-        scripts/check_galaxy_s3_i9305
-        is_gs3_i9305=$?
+          if [ "$is_gs3_exynos" == "1" ] 
+          then
+            is_gs3_common=1
 
-        if [ "$is_gs3_t999" == "1" ]
-        then
-          device_name="SGH-T999"
-        elif [ "$is_gs3_i747" == "1" ]
-        then  
-          device_name="SGH-I747"
-        elif [ "$is_gs3_i9300" == "1" ]
-        then
-          device_name="GT-I9300"
-        elif [ "$is_gs3_l710" == "1" ]
-        then
-          device_name="SPH-L710"
-        elif [ "$is_gs3_i535" == "1" ]
-        then
-          device_name="SCH-I535"
-        elif [ "$is_gs3_i9305" == "1" ]
-        then
-          device_name="GT-I9305"          
-        else
-          device_name=`scripts/get_device_name`
+          else
+            scripts/check_galaxy_s3_common
+            is_gs3_common=$?
+
+            if [ "$is_gs3_common" != "1" ]
+            then
+              scripts/check_gnote2_common
+              is_gnote2_common=$?
+            fi
+          fi
         fi
       fi
-    fi
+    fi    
   fi
 
   echo
-  echo "设备名称 = $device_name"
+  echo "厨房中的设备名称 = $device_name"
+
 
   change_mnt=`scripts/get_edify_def_val $device_name change_mnt`
   change_mnt_dell=`scripts/get_edify_def_val $device_name change_mnt_dell`
@@ -116,6 +115,7 @@ then
     sdcard_mnt=`scripts/get_edify_def_val $device_name sdcard_mnt`
     webtop_mnt=`scripts/get_edify_def_val $device_name webtop_mnt`
     modem_mnt=`scripts/get_edify_def_val $device_name modem_mnt`
+    preload_mnt=`scripts/get_edify_def_val $device_name preload_mnt`
   fi
 
   cd WORKING_*
@@ -151,22 +151,26 @@ then
     then
       sed -i \
         -e 's/format("MTD", "system")/format("'"$param1"'", "'"$param2"'", "'"$sys_mnt"'")/g' \
+        -e 's/format("MTD", "preload")/format("'"$param1"'", "'"$param2"'", "'"$preload_mnt"'")/g' \
         -e 's/format("MTD", "cache")/format("'"$param1_cache"'", "'"$param2_cache"'", "'"$cache_mnt"'")/g' \
         -e 's/format("MTD", "boot")/format("'"$param1"'", "'"$param2"'", "'"$boot_mnt"'")/g' \
         -e 's/format("MTD", "userdata")/format("'"$param1"'", "'"$param2"'", "'"$data_mnt"'")/g' \
         \
         -e 's/format("'"$param1"'", "MTD", "system")/format("'"$param1"'", "'"$sys_mnt"'")/g' \
+        -e 's/format("'"$param1"'", "MTD", "preload")/format("'"$param1"'", "'"$preload_mnt"'")/g' \
         -e 's/format("'"$param1_cache"'", "MTD", "cache")/format("'"$param1_cache"'", "'"$cache_mnt"'")/g' \
         -e 's/format("'"$param1"'", "MTD", "boot")/format("'"$param1"'", "'"$boot_mnt"'")/g' \
         -e 's/format("'"$param1"'", "MTD", "userdata")/format("'"$param1"'", "'"$data_mnt"'")/g' \
         \
         -e 's/mount("MTD", "system"/mount("'"$param1"'", "'"$param2"'", "'"$sys_mnt"'"/g' \
+        -e 's/mount("MTD", "preload"/mount("'"$param1"'", "'"$param2"'", "'"$preload_mnt"'"/g' \
         -e 's/mount("MTD", "cache"/mount("'"$param1_cache"'", "'"$param2_cache"'", "'"$cache_mnt"'"/g' \
         -e 's/mount("MTD", "boot"/mount("'"$param1"'", "'"$param2"'", "'"$boot_mnt"'"/g' \
         -e 's/mount("MTD", "userdata"/mount("'"$param1"'", "'"$param2"'", "'"$data_mnt"'"/g' \
         -e 's/mount("MTD", "sdcard"/mount("'"$param1_sdcard"'", "'"$param2_sdcard"'", "'"$sdcard_mnt"'"/g' \
         \
         -e 's/mount("'"$param1"'", "MTD", "system"/mount("'"$param1"'", "'"$sys_mnt"'"/g' \
+        -e 's/mount("'"$param1"'", "MTD", "preload"/mount("'"$param1"'", "'"$preload_mnt"'"/g' \
         -e 's/mount("'"$param1_cache"'", "MTD", "cache"/mount("'"$param1_cache"'", "'"$cache_mnt"'"/g' \
         -e 's/mount("'"$param1"'", "MTD", "boot"/mount("'"$param1"'", "'"$boot_mnt"'"/g' \
         -e 's/mount("'"$param1"'", "MTD", "userdata"/mount("'"$param1"'", "'"$data_mnt"'"/g' \
@@ -400,6 +404,17 @@ then
       fi
 
 
+      #
+      # MT65XX EMCC-based devices use "bootimg" rather than boot
+      #        
+
+      if [ "$is_mt65xx_bootimg" == "1" ]
+      then
+        sed -i \
+          -e 's/boot.img\", \"boot\"),/boot.img\", \"bootimg\"),/g' \
+        updater-script
+      fi
+
 
       ###############################
       # Samsung zImage and modem.bin   
@@ -459,12 +474,12 @@ then
      
         fi
 
-      elif [ "$is_gs3_exynos" == "1" ]
+      elif [ "$is_gs3_exynos" == "1" ] || [ "$is_gnote2_common" == "1" ]
       then
 
-        #################################
-        # Samsung Galaxy S3 International
-        #################################
+        ##########################################
+        # Samsung Galaxy S3 International / Note 2
+        ##########################################
 
         if [ `grep -c flash_modem updater-script` -gt 0 ]
         then
@@ -484,11 +499,13 @@ then
       sed -i \
         -e 's/format '"$param1"' '"$param2"' '"$sys_mnt"' 0/format SYSTEM:/g' \
         -e 's/format '"$param1"' '"$param2"' '"$sys_mnt"'/format SYSTEM:/g' \
+        -e 's/format '"$param1"' '"$param2"' '"$preload_mnt"'/format PRELOAD:/g' \
         -e 's/format '"$param1_cache"' '"$param2_cache"' '"$cache_mnt"'/format CACHE:/g' \
         -e 's/format '"$param1"' '"$param2"' '"$boot_mnt"'/format BOOT:/g' \
         -e 's/format '"$param1"' '"$param2"' '"$data_mnt"'/format DATA:/g' \
         \
         -e 's/format '"$param1"' '"$sys_mnt"'/format '"$param1"' SYSTEM:/g' \
+        -e 's/format '"$param1"' '"$preload_mnt"'/format '"$param1"' PRELOAD:/g' \
         -e 's/format '"$param1_cache"' '"$cache_mnt"'/format '"$param1_cache"' CACHE:/g' \
         -e 's/format '"$param1"' '"$boot_mnt"'/format '"$param1"' BOOT:/g' \
         -e 's/format '"$param1"' '"$data_mnt"'/format '"$param1"' DATA:/g' \
@@ -514,6 +531,7 @@ then
       then
         sed -i \
           -e 's/format .* '"$sys_mnt"'/format SYSTEM:/g' \
+          -e 's/format .* '"$preload_mnt"'/format PRELOAD:/g' \
           -e 's/format .* '"$cache_mnt"'/format CACHE:/g' \
           -e 's/format .* '"$boot_mnt"'/format BOOT:/g' \
           -e 's/format .* '"$data_mnt"'/format DATA:/g' \

@@ -29,7 +29,7 @@ then
     system_img=system.rfs
     csc_img=csc.rfs
   else
-    echo "错误: 在 $build_dir 中未发现 system RFS 镜像!"
+    echo "错误: 在 $build_dir 中未发现系统 RFS 镜像!"
     exit 1
   fi
 
@@ -39,6 +39,8 @@ then
   if [ -e $build_dir/$csc_img ]
   then
     mv $build_dir/$csc_img $build_dir/system
+  else
+    scripts/show_cache_warning $csc_img
   fi
 
   # Sometimes images have zero permissions set when extracted from TAR archive,
@@ -62,7 +64,7 @@ else
       scripts/show_rooted_kernel_msg
       kernel_img=zImage
     else
-      echo "警告: 未发现 original_update/zImage "
+      echo "警告: 未发现 original_update/zImage"
     fi
 
   elif [ -e original_update/system.rfs ]
@@ -75,11 +77,11 @@ else
       echo "发现 original_update/boot.img"
       kernel_img=boot.img
     else
-      echo "警告: 未发现 original_update/boot.img "
+      echo "警告: 未发现 original_update/boot.img"
     fi
 
   else
-    echo "错误: 在 original_update 文件夹中未发现 system RFS 镜像 !"
+    echo "错误: 在 original_update 文件夹中未发现系统 RFS 镜像!"
     exit 1
   fi
 
@@ -88,6 +90,8 @@ else
   if [ -e original_update/$csc_img ]
   then
     echo "发现 original_update/$csc_img"
+  else
+    scripts/show_cache_warning original_update/$csc_img
   fi
 
 
@@ -201,7 +205,7 @@ fi
 cd ..
 
 echo
-echo " $system_img 文件已经完全解包到:"
+echo "$system_img 文件已经完全解包到:"
 echo "  $system_dir"
 
 

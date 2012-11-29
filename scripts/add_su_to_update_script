@@ -23,20 +23,20 @@ then
   #
   # Do this to prevent conflicts with the update-script in ROMs that already have the binary
   #  
-  if [ -e ../../../../system/xbin/su ]
+  if [ -e ../../../../system/bin/su ]
   then
 
-    if [ "`find ../../../../system/bin -name su`" == "" ]
+    if [ "`find ../../../../system/xbin -name su`" == "" ]
     then
-      echo "移动 system/xbin/su 到 system/bin/su"
-      mkdir -p ../../../../system/bin
-      mv -f ../../../../system/xbin/su ../../../../system/bin/su
+      echo "移动 system/xbin/su 到 system/xbin/su"
+      mkdir -p ../../../../system/xbin
+      mv -f ../../../../system/bin/su ../../../../system/xbin/su
     else
-      echo "发现 /system/bin/su ，删除下一个 /system/xbin/su"
-      rm -f ../../../../system/xbin/su
+      echo "发现 /system/xbin/su ，删除下一个 /system/bin/su"
+      rm -f ../../../../system/bin/su
     fi
 
-  elif [ "`find ../../../../system/bin -name su`" == "" ]
+  elif [ "`find ../../../../system/xbin -name su`" == "" ]
   then
     echo "错误: 未发现 /system/xbin/su 和 /system/bin/su!"
     cd ../../../../..
@@ -46,17 +46,32 @@ then
 
   echo
   echo "添加 su 内容和链接到 update-script 脚本"
-  sed -i -e 's/etc\/init.goldfish.sh/etc\/init.goldfish.sh\nset_perm 0 0 06755 SYSTEM:bin\/su\nsymlink \/system\/bin\/su SYSTEM:xbin\/su/g' update-script
 
-  if [ ! -d ../../../../system/xbin ]
+  if [ `grep -c "set_perm_recursive.*SYSTEM:xbin[ ]*$" update-script` != 0 ]
   then
-    echo "创建 /system/xbin 文件夹"
-    mkdir -p ../../../../system/xbin
-    touch ../../../../system/xbin/placeholder
+    sed -i -e 's/set_perm_recursive\(.*\)SYSTEM:xbin[ ]*$/set_perm_recursive\1SYSTEM:xbin\nset_perm 0 0 06755 SYSTEM:xbin\/su\nsymlink \/system\/xbin\/su SYSTEM:bin\/su\n/' update-script
+  
+  elif [ `grep -c "init.goldfish.sh" update-script` != 0 ]
+  then
+    sed -i -e 's/set_perm 0 2000 0550 SYSTEM:etc\/init.goldfish.sh/set_perm 0 2000 0550 SYSTEM:etc\/init.goldfish.sh\nset_perm 0 0 06755 SYSTEM:xbin\/su\nsymlink \/system\/xbin\/su SYSTEM:bin\/su/g' update-script
+
+  elif [ `grep -c "write_raw_image .*:boot.img BOOT:" update-script` != 0 ]
+  then
+    sed -i -e 's/write_raw_image \(.*:boot.img\) BOOT:/set_perm 0 0 06755 SYSTEM:xbin\/su\nsymlink \/system\/xbin\/su SYSTEM:bin\/su\nwrite_raw_image \1 BOOT:/' update-script
+  
+  else
+    echo "set_perm 0 0 06755 SYSTEM:xbin/su" >> update-script
+    echo "symlink /system/xbin/su SYSTEM:bin/su" >> update-script
   fi
 
+  if [ ! -d ../../../../system/bin ]
+  then
+    echo "创建 /system/bin 文件夹"
+    mkdir -p ../../../../system/bin
+    touch ../../../../system/bin/placeholder
+  fi
 
-  if [ `grep -c "/bin/su " update-script` == 0 ]
+  if [ `grep -c "/xbin/su " update-script` == 0 ]
   then
     echo "错误: 无法在 update-script 脚本中添加 su 内容"
   fi
