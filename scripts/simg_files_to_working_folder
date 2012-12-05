@@ -399,10 +399,11 @@ then
         fi
 
         echo 
-        echo "注意: 如果你想要对这个 ROM 进行 de-odex 合并, 你需要手动从 /preload 文件夹"
-        echo "复制 APK 和 ODEX 文件到 /system/app, 并在之后将"
-        echo "完成 de-odex 合并的 APKs 移回原先的文件夹!"
+        echo "注意: 如果你想要对这个 ROM 进行 de-odex 合并, 你需要在 de-odex 合并前"
+        echo "手动从 /preload 文件夹复制 APK 和 ODEX 文件到 /system/app"
         echo
+
+        scripts/press_enter
 
       else
         echo "警告: 在 hidden.img 中未发现 APK/ODEX 文件!"

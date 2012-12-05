@@ -225,6 +225,41 @@ do
     echo "那么 app 文件夹必须要 Deodex"
   fi
 
+  # For some Samsung Exynos Galaxy S2 / Note ROMs
+  if [ $num_odex_app == 0 ] && [ -d preload/symlink/system/app ]
+  then
+    echo
+    echo -n "移动所有 *.apk 文件到 /preload/symlink/system/app (y/n)? (默认: y): "
+    read move_apps
+
+    if [ "$move_apps" == "n" ]
+    then
+      echo "未移动"
+    else
+      echo
+      mv -fv system/app/*.apk preload/symlink/system/app/
+
+      touch system/app/placeholder
+
+      if [ -e preload/symlink/system/app/Superuser.apk ]
+      then
+        echo
+        echo "保留 Superuser.apk 在 /system/app 文件夹"
+        mv -f preload/symlink/system/app/Superuser.apk system/app/
+      fi
+
+      if [ -e preload/symlink/system/app/SuperSU.apk ]
+      then
+        echo
+        echo "保留 SuperSU.apk 在 /system/app 文件夹"
+        mv -f preload/symlink/system/app/SuperSU.apk system/app/
+      fi
+    fi
+
+    echo
+  fi
+
+
   cd ..
   scripts/press_enter
 
