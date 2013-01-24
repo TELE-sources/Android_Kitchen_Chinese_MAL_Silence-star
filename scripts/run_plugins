@@ -124,7 +124,7 @@ else
       continue
     fi
 
-    if [ refresh_names==1 ]
+    if [ $refresh_names == 1 ]
     then
       cd scripts/plugins
       grep_cmd=`find . | grep "\.plugin\$" | sed 's/.\///'`
