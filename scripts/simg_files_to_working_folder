@@ -400,7 +400,7 @@ then
 
         echo 
         echo "注意: 如果你想要对这个 ROM 进行 de-odex 合并, 你需要在 de-odex 合并前"
-        echo "手动从 /preload 文件夹复制 APK 和 ODEX 文件到 /system/app"
+        echo "从 /preload 文件夹移动 APK 和 ODEX 文件到 /system/app。厨房将会自动处理。"
         echo
 
         scripts/press_enter

@@ -371,6 +371,12 @@ fi
 #
 cd ..
 scripts/fix_prima_wifi
+
+#
+# Symlink fix under /system/lib/modules, especially for MTK65xx devices
+#
+scripts/fix_lib_modules
+
 cd WORKING_*
 
 

@@ -55,6 +55,7 @@ do
   fi
 
 
+
   num_odex=`find . | grep -c "\.odex$"`
 
   if [ "$num_odex" == "0" ]
@@ -65,6 +66,39 @@ do
     exit 0
 
   else
+
+
+    # Look for odex files in preload folder (e.g. in Galaxy S2 GT-I9100)
+    if [ -d preload/symlink/system/app ]
+    then
+
+      cd preload/symlink/system/app
+
+      if [ `find . | grep -c "\.odex$"` != "0" ]
+      then
+        echo "注意: 在 /preload 文件夹中发现ODEX文件."
+        echo  
+        echo "移动 preload 符号链接文件夹中所有的 *.apk 和 *.odex 文件到"
+        echo -n "/system/app (y/n)? (默认: y): "
+        
+        read move_files
+        echo
+
+        if [ "$move_files" == "n" ]
+        then
+          echo "警告: 未移动!"
+        else
+          mv -fv *.apk ../../../../system/app/
+          mv -fv *.odex ../../../../system/app/
+          touch placeholder 
+        fi
+
+        echo
+      fi
+
+      cd ../../../..
+    fi
+
 
     num_odex_fr=`find system/framework | grep -c "\.odex$"`
     num_odex_app=`find system/app | grep -c "\.odex$"`
@@ -234,12 +268,13 @@ do
 
     if [ "$move_apps" == "n" ]
     then
-      echo "未移动"
+      echo "警告：未移动"
     else
       echo
       mv -fv system/app/*.apk preload/symlink/system/app/
 
       touch system/app/placeholder
+      rm -f preload/symlink/system/app/placeholder
 
       if [ -e preload/symlink/system/app/Superuser.apk ]
       then

@@ -484,20 +484,24 @@ then
   echo
   echo "复制ROM文件到手机内存卡，然后进入recovery菜单刷入手机"
   echo
-  echo "如有必要请记得在刷机之前执行wipe操作清除数据"
+  echo "注意1：如有必要请记得在刷机之前恢复出厂设置或执行wipe操作清除数据"
   echo
-  echo "如果你的ROM不能启动，请到神族论坛发帖求助。"
+  echo "注意2：请务必参阅Android厨房在 xda-developers.com 上的问题解答中的常见的问题，如："
+  echo
+  echo " - 刷机错误 (例如 Status 0)"
+  echo " - 刷入 ZIP 刷机包后不能启动"
 
   if [ "$sign_update" == "no" ]
   then
     echo
-    echo "请注意: 你需要在recovery菜单选项中禁用签名校验功能来刷入这个ROM"
+    echo "注意3: 你需要在recovery菜单选项中禁用签名校验功能来刷入这个ROM"
     echo " 如果你稍后想签名这个ROM，请使用厨房高级菜单中签名ZIP选项。"
   fi
 
   echo
+  echo "祝你好运!"
 
-else 
+else
 
   echo
   echo "不能创建 $final_file!"
