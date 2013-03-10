@@ -18,7 +18,7 @@ fi
 
 if [ -d MY_KERNEL ]
 then
-  echo "移除 MY_KERNEL fol文件夹der"
+  echo "移除 MY_KERNEL 文件夹"
   rm -rf MY_KERNEL
 fi
 

@@ -132,7 +132,7 @@ fi
 
 
 #
-# Check for hidden.img symlinks (Galaxy S2)
+# Check for /preload symlinks (Galaxy S2)
 #
 
 cd WORKING_*

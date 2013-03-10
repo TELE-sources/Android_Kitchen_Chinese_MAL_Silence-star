@@ -504,7 +504,7 @@ then
 else
 
   echo
-  echo "不能创建 $final_file!"
+  echo "未能创建 $final_file!"
   echo
 
   if [ "$sign_update" == "yes" ]

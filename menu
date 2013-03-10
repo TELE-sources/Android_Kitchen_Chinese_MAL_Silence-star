@@ -10,7 +10,7 @@
 #
 ############################################################################
 
-version=0.221
+version=0.222
 
 
 if [ ! -e menu ]
@@ -18,7 +18,7 @@ then
   echo
   echo "确保你是从这个文件所在文件夹运行，"
   echo "否则厨房将会在运行脚本的时候出现问题。"
-  echo "当你使用 'cd' 到正确的文件夹, 用./menu\命令"
+  echo "当你使用 'cd' 到正确的文件夹, 用 ./menu 命令"
   echo "运行厨房工具, 不要尝试其它的命令或方法!"
   exit 0
 fi
@@ -113,7 +113,7 @@ do
       99) scripts/build_rom;;
       u) scripts/about $version; continue;;
       x) scripts/init_kitchen; clear; echo; echo "再见，欢迎光临神族论坛（http://bbs.malshenzu.com/），神族与你共进步！"; echo; exit 1;;
-      *) echo "错误选择项"; continue;;
+      *) echo "错误选项"; continue;;
     esac
   fi
 

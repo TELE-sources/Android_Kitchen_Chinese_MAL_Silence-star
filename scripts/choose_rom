@@ -85,7 +85,7 @@ else
 
       elif [ "$filename" == "system.img.ext4" ]
       then
-        filename="system.img.ext4, cache.img.ext4 and boot.img"
+        filename="system.img.ext4, tomb.img.ext4, cache.img.ext4 and boot.img"
 
       elif [ "$filename" == "system.ext4.tar" ]
       then

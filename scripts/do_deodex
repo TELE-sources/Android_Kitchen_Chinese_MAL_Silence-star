@@ -56,168 +56,213 @@ do
 
 
 
-  num_odex=`find . | grep -c "\.odex$"`
+  #
+  # Look for odex files in preload folder (e.g. in Galaxy S2)
+  #
 
-  if [ "$num_odex" == "0" ]
+  if [ -d preload/symlink/system/app ]
   then
-    echo "未发现 *.odex 文件，不需要进行 Deodex 操作!"
-    cd ..
-    scripts/press_enter
-    exit 0
 
-  else
+    cd preload/symlink/system/app
 
+    num_preload_odex=`find . | grep -c "\.odex$"`
+    num_preload_apk=`find . | grep -c "\.apk$"`
+    num_sysapp_odex=`find ../../../../system/app | grep -c "\.odex$"`
+    num_sysfr_odex=`find ../../../../system/framework | grep -c "\.odex$"`
 
-    # Look for odex files in preload folder (e.g. in Galaxy S2 GT-I9100)
-    if [ -d preload/symlink/system/app ]
+    # Case 1 - No odex files in preload or /system/app
+    if [ $num_preload_odex == 0 ] && [ $num_sysapp_odex == 0 ] 
+    then
+      echo "在 /preload/symlink/system/app 或 /system/app 文件夹中未发现 ODEX 文件"
+      echo
+
+    # Case 2 - No apk/odex files in preload but odex files in /system/app
+    elif [ $num_preload_odex == 0 ] && [ $num_preload_apk == 0 ] 
     then
 
-      cd preload/symlink/system/app
-
-      if [ `find . | grep -c "\.odex$"` != "0" ]
+      if [ ! -e preload_apk_list ]
       then
-        echo "注意: 在 /preload 文件夹中发现ODEX文件."
-        echo  
-        echo "移动 preload 符号链接文件夹中所有的 *.apk 和 *.odex 文件到"
-        echo -n "/system/app (y/n)? (默认: y): "
-        
-        read move_files
-        echo
-
-        if [ "$move_files" == "n" ]
-        then
-          echo "警告: 未移动!"
-        else
-          mv -fv *.apk ../../../../system/app/
-          mv -fv *.odex ../../../../system/app/
-          touch placeholder 
-        fi
-
+        echo "警告: 在 /preload/symlink/system/app 文件夹中未发现 APK/ODEX 文件"
         echo
       fi
 
-      cd ../../../..
-    fi
-
-
-    num_odex_fr=`find system/framework | grep -c "\.odex$"`
-    num_odex_app=`find system/app | grep -c "\.odex$"`
-
-    echo "已在 system/framework 中发现 $num_odex_fr *.odex 文件"
-    echo "已在 system/app 中发现 $num_odex_app *.odex 文件"
-
-    if [ $num_odex_fr == 0 ] && [ $num_odex_app -gt 0 ]
+    # Case 3 - apk/odex files in preload
+    elif [ $num_preload_odex -gt 0 ] || [ $num_preload_apk -gt 0 ]
     then
+
+      echo "注意: 在 /preload 文件夹中发现 $num_preload_apk APK 和 $num_preload_odex ODEX文件."
+      echo  
+      echo "暂时移动 preload 符号链接文件夹中的文件到 /system/app (y/n)? "
+      echo -n "(默认: y): "
+        
+      read move_files
       echo
-      echo "注意: 如果 framework 文件夹已经进行了 Deodex 操作"
-      echo "则 app 文件夹也必须进行 Deodex 操作。"
+
+      if [ "$move_files" == "n" ]
+      then
+        echo "警告: 未移动!"
+      else
+
+        if [ $num_preload_apk -gt 0 ] 
+        then
+          apk_list=`ls *.apk`
+          echo $apk_list > preload_apk_list
+          mv -fv *.apk ../../../../system/app/
+        else
+          touch placeholder
+        fi
+
+        if [ $num_preload_odex -gt 0 ] 
+        then
+          mv -fv *.odex ../../../../system/app/
+        fi
+
+      fi
+
+      echo
     fi
 
+    cd ../../../..
+  fi
+
+
+
+  num_odex_fr=`find system/framework | grep -c "\.odex$"`
+  num_odex_app=`find system/app | grep -c "\.odex$"`
+
+  echo "已在 /system/framework 中发现 $num_odex_fr *.odex 文件"
+  echo "已在 /system/app 中发现 $num_odex_app *.odex 文件"
+
+  if [ -e preload/symlink/system/app/preload_apk_list ]
+  then
+    echo
+    echo "注意:在 de-odex 合并完成后，一组 APK 文件"
+    echo "将会被移回到 /preload 文件夹."
+    echo 
+  fi
+
+
+  if [ $num_odex_fr == 0 ] && [ $num_odex_app == 0 ]
+  then
+    echo
+    echo "不需要进行 de-odex 合并操作!"
+    cd ..
+    scripts/press_enter
+    exit 0
+  fi
+
+  if [ $num_odex_fr == 0 ] && [ $num_odex_app -gt 0 ]
+  then
+    echo
+    echo "注意: 如果 framework 文件夹已经进行了 Deodex 操作"
+    echo "则 app 文件夹也必须进行 Deodex 操作。"
+    echo
+  fi
+
+
+  cd ..
+  scripts/convert_to_unix tools/deodex_files/api_level.txt    
+  api_level=`scripts/get_api_level`
+  cd WORKING_*
+
+
+  #
+  # Show menu choices
+  #
+
+  echo
+  echo "输入选项:（选择前请确保你设置了正确的API级别）"
+  echo
+
+  if [ $num_odex_app -gt 0 ] || [ $num_odex_fr -gt 0 ]
+  then
+    echo " bb  = 备份这两个文件夹 (建议每次定制先备份)"
+  fi
+
+  echo "  v  = 设置 Android 系统的 API 级别 (当前级别 = $api_level)"
+  echo
+  echo "       特别注意: 请确保你设置了正确的API级别！"
+  echo "                 否则Deodex后的文件可能会出现问题！"
+  echo
+
+  if [ $num_odex_fr -gt 0 ]
+  then
+    echo "  f  = Deodex /system/framework"
+  fi
+  if [ $num_odex_app -gt 0 ]
+  then
+    echo "  a  = Deodex /system/app"
+  fi
+  if [ $num_odex_app -gt 0 ] && [ $num_odex_fr -gt 0 ]
+  then
+    echo "  b  = 两个文件夹（推荐）"
+  fi
+  echo "  s  = 单个文件"
+  echo "  x  = 退出"
+  echo
+  echo -n "请输入选择项： "
+
+  read enterChoice
+
+  list1=( app )
+  list2=( framework )
+  list3=( framework app )
+
+  if [ "$enterChoice" == "a" ]
+  then
+    dir_list=app
+  elif [ "$enterChoice" == "v" ]
+  then
+    cd ..
+    scripts/change_api_level
+    continue
+  elif [ "$enterChoice" == "f" ] 
+  then
+    dir_list=framework
+  elif [ "$enterChoice" == "b" ] 
+  then
+    dir_list="framework app"
+  elif [ "$enterChoice" == "s" ]
+  then
+    cd ..
+    scripts/choose_single_deodex
+    continue
+  elif [ "$enterChoice" == "bb" ]
+  then
+
+    #
+    # Backup
+    #
+
+    folder_list=( framework app )
+    date_str=`date '+%m%d%y_%H%M%S'`
+
+    for f in ${folder_list[@]}
+    do
+
+      backup_folder="old_`echo -n $f`_$date_str"
+      cd system/$f
+
+      echo
+      echo "在工作文件夹以外创建备份文件夹 $backup_folder ..."
+      mkdir ../../../$backup_folder
+      cp  * ../../../$backup_folder/
+      echo "$f 文件夹已完成备份."
+
+      cd ../..
+    done
 
     cd ..
-    scripts/convert_to_unix tools/deodex_files/api_level.txt    
-    api_level=`scripts/get_api_level`
-    cd WORKING_*
+    scripts/press_enter
+    continue
 
-
-    #
-    # Show menu choices
-    #
-
-    echo
-    echo "输入选项:（选择前请确保你设置了正确的API级别）"
-    echo
-
-    if [ $num_odex_app -gt 0 ] || [ $num_odex_fr -gt 0 ]
-    then
-      echo " bb  = 备份这两个文件夹 (建议每次定制先备份)"
-    fi
-
-    echo "  v  = 设置 Android 系统的 API 级别 (当前级别 = $api_level)"
-    echo
-    echo "       特别注意: 请确保你设置了正确的API级别！"
-    echo "                 否则Deodex后的文件可能会出现问题！"
-    echo
-
-    if [ $num_odex_fr -gt 0 ]
-    then
-      echo "  f  = Deodex /system/framework"
-    fi
-    if [ $num_odex_app -gt 0 ]
-    then
-      echo "  a  = Deodex /system/app"
-    fi
-    if [ $num_odex_app -gt 0 ] && [ $num_odex_fr -gt 0 ]
-    then
-      echo "  b  = 两个文件夹（推荐）"
-    fi
-    echo "  s  = 单个文件"
-    echo "  x  = 退出"
-    echo
-    echo -n "请输入选择项： "
-
-    read enterChoice
-
-    list1=( app )
-    list2=( framework )
-    list3=( framework app )
-
-    if [ "$enterChoice" == "a" ]
-    then
-      dir_list=app
-    elif [ "$enterChoice" == "v" ]
-    then
-      cd ..
-      scripts/change_api_level
-      continue
-    elif [ "$enterChoice" == "f" ] 
-    then
-      dir_list=framework
-    elif [ "$enterChoice" == "b" ] 
-    then
-      dir_list="framework app"
-    elif [ "$enterChoice" == "s" ]
-    then
-      cd ..
-      scripts/choose_single_deodex
-      continue
-    elif [ "$enterChoice" == "bb" ]
-    then
-
-      #
-      # Backup
-      #
-
-      folder_list=( framework app )
-      date_str=`date '+%m%d%y_%H%M%S'`
-
-      for f in ${folder_list[@]}
-      do
-
-        backup_folder="old_`echo -n $f`_$date_str"
-        cd system/$f
-
-        echo
-        echo "在工作文件夹以外创建备份文件夹 $backup_folder ..."
-        mkdir ../../../$backup_folder
-        cp  * ../../../$backup_folder/
-        echo "$f 文件夹已完成备份."
-
-        cd ../..
-      done
-
-      cd ..
-      scripts/press_enter
-      continue
-
-    elif [ "$enterChoice" == "x" ]
-    then
-      cd ..
-      exit 0
-    else
-      cd ..
-      continue
-    fi
+  elif [ "$enterChoice" == "x" ]
+  then
+    cd ..
+    exit 0
+  else
+    cd ..
+    continue
   fi
 
 
@@ -246,6 +291,7 @@ do
   fi
 
   num_odex_app=`find system/app | grep -c "\.odex$"`
+  num_apk_app=`find system/app | grep -c "\.apk$"`
   num_odex_fr=`find system/framework | grep -c "\.odex$"`
 
   echo
@@ -260,36 +306,18 @@ do
   fi
 
   # For some Samsung Exynos Galaxy S2 / Note ROMs
-  if [ $num_odex_app == 0 ] && [ -d preload/symlink/system/app ]
+  if [ $num_odex_app == 0 ] && [ $num_apk_app != 0 ] && [ -e preload/symlink/system/app/preload_apk_list ]
   then
     echo
-    echo -n "移动所有 *.apk 文件到 /preload/symlink/system/app (y/n)? (默认: y): "
-    read move_apps
+    echo "移回原来在 /preload/symlink/system/app 里的所有 *.apk ..."
+    echo
 
-    if [ "$move_apps" == "n" ]
-    then
-      echo "警告：未移动"
-    else
-      echo
-      mv -fv system/app/*.apk preload/symlink/system/app/
+    for apk in `cat preload/symlink/system/app/preload_apk_list`
+    do
+      mv system/app/$apk preload/symlink/system/app/
+    done
 
-      touch system/app/placeholder
-      rm -f preload/symlink/system/app/placeholder
-
-      if [ -e preload/symlink/system/app/Superuser.apk ]
-      then
-        echo
-        echo "保留 Superuser.apk 在 /system/app 文件夹"
-        mv -f preload/symlink/system/app/Superuser.apk system/app/
-      fi
-
-      if [ -e preload/symlink/system/app/SuperSU.apk ]
-      then
-        echo
-        echo "保留 SuperSU.apk 在 /system/app 文件夹"
-        mv -f preload/symlink/system/app/SuperSU.apk system/app/
-      fi
-    fi
+    rm -f preload/symlink/system/app/preload_apk_list
 
     echo
   fi

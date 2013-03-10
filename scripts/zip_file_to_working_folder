@@ -236,6 +236,12 @@ then
     mv boot.img ../temp_img
   fi
 
+  if [ -e tomb.img.ext4 ]
+  then
+    echo "发现 tomb.img.ext4"
+    mv tomb.img.ext4 ../temp_img
+  fi
+
   if [ -e cache.img.ext4 ]
   then
     echo "发现 cache.img.ext4"

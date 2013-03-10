@@ -239,11 +239,11 @@ then
 
     echo "正在尝试挂载文件系统 ..."
     buffer=`$fuse_cmd $img_file $mount_dir`
-    echo "文件系统已经挂载"
+    echo $buffer
   fi
 
   listing=`ls $mount_dir`
-  echo "文件系统已经列出，正在分析 ..."
+  echo "文件系统已经列出，正在分析 $mount_dir ..."
   
   if [ "$listing" != "" ]
   then
