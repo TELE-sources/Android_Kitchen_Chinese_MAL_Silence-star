@@ -8,6 +8,5 @@ OUTPUT_ZIP
 BOOT-EXTRACTED
 WORKING*
 temp
-bootimg_*
 csc_*
 todo.txt
